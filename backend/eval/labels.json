@@ -1,0 +1,18 @@
+{
+  "test_outdoor_park.jpg": {
+    "is_outdoor": true,
+    "category": "outdoor_nature"
+  },
+  "test_indoor_room.jpg": {
+    "is_outdoor": false,
+    "category": "indoor"
+  },
+  "test_screenshot_code.jpg": {
+    "is_outdoor": false,
+    "category": "screenshot"
+  },
+  "test_screen_photo.jpg": {
+    "is_outdoor": false,
+    "category": "screen_photo"
+  }
+}
