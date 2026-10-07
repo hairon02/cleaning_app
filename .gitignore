@@ -1,0 +1,40 @@
+# Ambientes y herramientas AI
+.antigravity
+.gemini
+
+# Entorno y credenciales
+.env
+.env.*
+!.env.example
+
+# Python y backend
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+backend/.venv/
+backend/uploads/*
+!backend/uploads/.gitkeep
+backend/*.db
+backend/*.sqlite
+backend/*.sqlite3
+.pytest_cache/
+.ruff_cache/
+
+# Flutter / Dart
+app/clearing/.dart_tool/
+app/clearing/.packages
+app/clearing/.pub-cache/
+app/clearing/.pub/
+app/clearing/build/
+app/clearing/lib/generated_plugin_registrant.dart
+app/clearing/.flutter-plugins
+app/clearing/.flutter-plugins-dependencies
+
+# IDEs y SO
+.vscode/
+.idea/
+*.iml
+.DS_Store
+Thumbs.db

@@ -1,0 +1,27 @@
+name: clearing
+description: "Clearing - Fog of War outdoor exploration game powered by local Gemma."
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.13.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^1.2.2
+  flutter_map: ^8.3.2
+  latlong2: ^0.10.1
+  camera: ^0.12.1
+  geolocator: ^14.1.1
+  permission_handler: ^13.0.2
+  shared_preferences: ^2.3.2
+  cached_network_image: ^4.0.4
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
