@@ -39,8 +39,8 @@ def _load_prompt_template() -> str:
     if PROMPT_FILE.exists():
         return PROMPT_FILE.read_text(encoding="utf-8")
     return (
-        "Eres un clasificador visual estricto. "
-        "Devuelve únicamente un JSON con {is_outdoor, description, tags, time_of_day, weather}."
+        "You are a strict visual classifier. "
+        "Return only a JSON object with {is_outdoor, description, tags, time_of_day, weather}."
     )
 
 
@@ -82,14 +82,24 @@ def _call_ollama(
         "images": [b64_img],
         "stream": False,
         "format": "json",
+        "options": {"temperature": 0},
     }
 
     try:
         with httpx.Client(timeout=120.0) as client:
             resp = client.post(f"{host}/api/generate", json=payload)
-            resp.raise_for_status()
+            if resp.is_error:
+                # Ollama puts the actionable cause in the response body (for
+                # example, when a text-only model receives an image).
+                detail = resp.text.strip()
+                raise GemmaError(
+                    f"Ollama API returned HTTP {resp.status_code}"
+                    + (f": {detail}" if detail else "")
+                )
             data = resp.json()
             return data.get("response", "")
+    except GemmaError:
+        raise
     except Exception as exc:
         raise GemmaError(f"Ollama API request failed: {exc}") from exc
 
@@ -159,8 +169,8 @@ def verify_photo(
             # Enhance prompt on retry with instruction to correct the JSON
             current_prompt = (
                 f"{PROMPT_TEMPLATE}\n\n"
-                f"IMPORTANTE: Tu respuesta anterior causó un error de validación ({exc}). "
-                f"Asegúrate de responder ÚNICAMENTE con un JSON válido y bien formado."
+                f"IMPORTANT: Your previous response caused a validation error ({exc}). "
+                f"Make sure to respond ONLY with a valid and well-formed JSON object."
             )
 
     raise GemmaError(

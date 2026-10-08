@@ -18,8 +18,8 @@ def sample_image(tmp_path: Path) -> Path:
 def test_verify_photo_success(sample_image: Path):
     mock_response = json.dumps({
         "is_outdoor": True,
-        "description": "Un parque verde con árboles",
-        "tags": ["parque", "árbol", "verde"],
+        "description": "A green park with trees",
+        "tags": ["park", "tree", "green"],
         "time_of_day": "morning",
         "weather": "sunny"
     })
@@ -31,8 +31,8 @@ def test_verify_photo_success(sample_image: Path):
 
     assert isinstance(result, GemmaResult)
     assert result.is_outdoor is True
-    assert result.description == "Un parque verde con árboles"
-    assert "parque" in result.tags
+    assert result.description == "A green park with trees"
+    assert "park" in result.tags
     assert result.time_of_day == "morning"
     assert result.weather == "sunny"
 
@@ -43,13 +43,13 @@ def test_verify_photo_markdown_json_cleaning(sample_image: Path):
     ```json
     {
         "is_outdoor": false,
-        "description": "Una pantalla de laptop",
-        "tags": ["pantalla", "teclado"],
+        "description": "A laptop screen",
+        "tags": ["screen", "keyboard"],
         "time_of_day": "night",
         "weather": "unknown"
     }
     ```
-    Espero que te sirva.
+    I hope this helps.
     """
 
     result = verify_photo(
@@ -58,8 +58,8 @@ def test_verify_photo_markdown_json_cleaning(sample_image: Path):
     )
 
     assert result.is_outdoor is False
-    assert result.description == "Una pantalla de laptop"
-    assert result.tags == ["pantalla", "teclado"]
+    assert result.description == "A laptop screen"
+    assert result.tags == ["screen", "keyboard"]
 
 
 def test_verify_photo_retry_success(sample_image: Path):
@@ -69,11 +69,11 @@ def test_verify_photo_retry_success(sample_image: Path):
         nonlocal attempts
         attempts += 1
         if attempts == 1:
-            return "No soy un json válido!"
+            return "I am not a valid json!"
         return json.dumps({
             "is_outdoor": True,
-            "description": "Bosque tras reintento",
-            "tags": ["bosque"],
+            "description": "A forest after retry",
+            "tags": ["forest"],
             "time_of_day": "afternoon",
             "weather": "cloudy"
         })
@@ -86,12 +86,12 @@ def test_verify_photo_retry_success(sample_image: Path):
 
     assert attempts == 2
     assert result.is_outdoor is True
-    assert result.description == "Bosque tras reintento"
+    assert result.description == "A forest after retry"
 
 
 def test_verify_photo_failure_raises_gemma_error(sample_image: Path):
     def mock_broken_backend(path: str, prompt: str) -> str:
-        return "Respuesta que nunca es JSON"
+        return "The response is never valid JSON."
 
     with pytest.raises(GemmaError) as exc_info:
         verify_photo(

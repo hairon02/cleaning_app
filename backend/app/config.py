@@ -14,7 +14,7 @@ SCHEMA_PATH = BASE_DIR / "schema.sql"
 CELL_SIZE_M = int(os.getenv("CELL_SIZE_M", "200"))
 PHASH_THRESHOLD = int(os.getenv("PHASH_THRESHOLD", "10"))
 
-GEMMA_MODEL = os.getenv("GEMMA_MODEL", "gemma3n:e4b")
+GEMMA_MODEL = os.getenv("GEMMA_MODEL", "gemma3:4b")
 GEMMA_BACKEND = os.getenv("GEMMA_BACKEND", "ollama")
 GEMMA_MAX_RETRIES = int(os.getenv("GEMMA_MAX_RETRIES", "2"))
 

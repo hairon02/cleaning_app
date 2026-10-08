@@ -1,4 +1,4 @@
-# Naturalist 🌿
+# Clearing 🌿
 
 > A mobile web app (PWA) that clears the fog of war from your map only when you go outside and take a real photo of the location. Verified locally using Gemma 3n (vision) running on your laptop—no photos or GPS coordinates ever touch the cloud or third-party APIs.
 
@@ -6,7 +6,7 @@
 
 ## What Makes It Different
 
-Traditional "fog of war" apps passively clear the map based on GPS movement. In Naturalist, the fog only clears when a photo passes on-device AI verification. The local model is an essential core mechanic, not an afterthought.
+Traditional "fog of war" apps passively clear the map based on GPS movement. In Clearing, the fog only clears when a photo passes on-device AI verification. The local model is an essential core mechanic, not an afterthought.
 
 - **"Touch Grass" Philosophy:** The camera is the primary screen. The map and journal are quick rewards viewed for a few seconds. All value happens outdoors.
 - **Privacy by Design:** Photos, location, and metadata are processed entirely on your local machine.
@@ -97,6 +97,6 @@ flutter build web
 ## Methodology & Specifications (SDD)
 
 This repository follows **Spec Driven Development (SDD)**:
-- **Constitution:** Mission, architectural principles, and tech constraints live in [`spec/constitution/`](file:///C:/Users/hairo/Documents/Naturalist/spec/constitution).
-- **Roadmap:** The chronological delivery sequence is tracked in [`spec/constitution/roadmap.md`](file:///C:/Users/hairo/Documents/Naturalist/spec/constitution/roadmap.md).
-- **Features:** Each feature follows a strict lifecycle (`spec.md` -> `plan.md` -> `tasks.md`) under [`spec/features/`](file:///C:/Users/hairo/Documents/Naturalist/spec/features).
+- **Constitution:** Mission, architectural principles, and tech constraints live in [`spec/constitution/`](file:///C:/Users/hairo/Documents/Clearing/spec/constitution).
+- **Roadmap:** The chronological delivery sequence is tracked in [`spec/constitution/roadmap.md`](file:///C:/Users/hairo/Documents/Clearing/spec/constitution/roadmap.md).
+- **Features:** Each feature follows a strict lifecycle (`spec.md` -> `plan.md` -> `tasks.md`) under [`spec/features/`](file:///C:/Users/hairo/Documents/Clearing/spec/features).

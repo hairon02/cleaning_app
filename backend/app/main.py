@@ -15,7 +15,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="Clearing API",
-    description="Backend local para verificación de exteriores con IA y mapa con niebla",
+    description="Local backend for AI-powered outdoor verification and fog-of-war map",
     version="0.1.0",
     lifespan=lifespan,
 )

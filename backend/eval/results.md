@@ -2,7 +2,7 @@
 
 ## Resumen
 
-- **Modelo evaluado:** `gemma3n:e4b`
+- **Modelo evaluado:** `gemma3:4b`
 - **Backend:** Ollama (`http://localhost:11434/api/generate`)
 - **Fecha de ejecución:** 2026-10-07
 - **Objetivo de acierto:** ≥ 80%

@@ -7,6 +7,7 @@
 ## Hecho ✅
 
 1. **001 · Project Scaffold** — Esqueleto inicial del repo: estructura de carpetas `backend/` + `app/` (Flutter), `schema.sql`, `db.py`, variables de entorno y pipeline CI mínimo (`ruff`, `pytest`). Incluye identidad anónima: un `user_id` generado por dispositivo más un apodo, sin login.
+2. **002 · Gemma Integration** — Conexión local con Gemma 3n vía Ollama o `transformers`; prompt de verificación que devuelve JSON validado (`is_outdoor`, `description`, `tags`, `time_of_day`, `weather`). Incluye set de evaluación, script `eval/run.py` y suite de tests con reintentos y tolerancia a markdown.
 
 ---
 
@@ -14,11 +15,7 @@
 
 ### Infraestructura base
 
-2. **002 · HTTPS & Device Spike** — Prueba mínima de punta a punta: un Flutter "hola mundo" servido por FastAPI a través de Cloudflare Tunnel o mkcert, abierto desde Safari en el iPhone. Verifica que la cámara y el GPS funcionan y que la página se puede instalar como PWA. Si algo falla aquí, se decide el plan B (por ejemplo, `<input type="file" capture>` vía interop) antes de construir nada más.
-
-3. **003 · Gemma Integration** — Conexión local con Gemma 3n vía Ollama o `transformers`; prompt de verificación que devuelve JSON validado (`is_outdoor`, `is_screen_capture`, `description`, `tags`, `time_of_day`, `weather`). Incluye set de evaluación de 20–30 fotos y script `eval/run.py` que mide el acierto y registra el resultado para el post.
-
-4. **004 · Photo Upload & Verification Pipeline** — Endpoint `POST /upload`: recibe la foto, con latitud, longitud y hora tomadas por el cliente en el momento de la captura (API de geolocalización del navegador); el servidor guarda además su propia hora como referencia. Calcula pHash, detecta duplicados, llama a Gemma y guarda el resultado en `photos` con el estado correcto (`verified` | `rejected` | `duplicate` | `pending_review`). Es el núcleo de toda la mecánica. Nota: que las fotos vengan solo de la cámara lo impone la interfaz, no el servidor.
+3. **003 · Photo Upload & Verification Pipeline** — Endpoint `POST /upload`: recibe la foto, con latitud, longitud y hora tomadas por el cliente en el momento de la captura (API de geolocalización del navegador); el servidor guarda además su propia hora como referencia. Calcula pHash, detecta duplicados, llama a Gemma y guarda el resultado en `photos` con el estado correcto (`verified` | `rejected` | `duplicate` | `pending_review`). Es el núcleo de toda la mecánica. Nota: que las fotos vengan solo de la cámara lo impone la interfaz, no el servidor.
 
 5. **005 · Camera Capture Screen** — Pantalla principal: cámara en tiempo real (sin galería), botón de captura, GPS y hora registrados en el momento, feedback visual mientras se sube y verifica la foto.
 

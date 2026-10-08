@@ -41,7 +41,7 @@ Clearing/
 DB_PATH=backend/clearing.db
 UPLOAD_DIR=backend/uploads
 CELL_SIZE_M=200
-GEMMA_MODEL=gemma3n:e4b          # tag exacto de Ollama (por confirmar)
+GEMMA_MODEL=gemma3:4b          # tag exacto de Ollama (por confirmar)
 GEMMA_BACKEND=ollama              # ollama | transformers
 GEMMA_MAX_RETRIES=2
 ```

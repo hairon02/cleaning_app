@@ -1,4 +1,24 @@
 {
+  "test1.jpg": {"is_outdoor": true, "category": "trees"},
+  "test2.jpg": {"is_outdoor": true, "category": "trees"},
+  "test3.jpg": {"is_outdoor": true, "category": "park"},
+  "test4.jpg": {"is_outdoor": true, "category": "park"},
+  "test5.jpg": {"is_outdoor": true, "category": "sky"},
+  "test6.jpg": {"is_outdoor": true, "category": "sky"},
+  "test7.jpg": {"is_outdoor": true, "category": "trail"},
+  "test8.jpeg": {"is_outdoor": true, "category": "trail"},
+  "test9.jpg": {"is_outdoor": true, "category": "sky"},
+  "test10.jpg": {"is_outdoor": true, "category": "park"},
+  "test11.jpg": {"is_outdoor": false, "category": "indoor"},
+  "test12.jpg": {"is_outdoor": false, "category": "indoor"},
+  "test13.jpg": {"is_outdoor": false, "category": "indoor"},
+  "test14.jpg": {"is_outdoor": false, "category": "indoor"},
+  "test15.jpg": {"is_outdoor": false, "category": "indoor"},
+  "test16.jpeg": {"is_outdoor": false, "category": "screen_photo"},
+  "test17.jpeg": {"is_outdoor": false, "category": "screen_photo"},
+  "test18.jpeg": {"is_outdoor": false, "category": "screen_photo"},
+  "test19.jpeg": {"is_outdoor": false, "category": "screenshot"},
+  "test20.jpeg": {"is_outdoor": false, "category": "screenshot"},
   "test_outdoor_park.jpg": {
     "is_outdoor": true,
     "category": "outdoor_nature"
@@ -11,7 +31,7 @@
     "is_outdoor": false,
     "category": "screenshot"
   },
-  "test_screen_photo.jpg": {
+  "test_screen_photo.jpeg": {
     "is_outdoor": false,
     "category": "screen_photo"
   }
