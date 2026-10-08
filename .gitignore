@@ -38,3 +38,5 @@ app/clearing/.flutter-plugins-dependencies
 *.iml
 .DS_Store
 Thumbs.db
+.agents/
+.codex/

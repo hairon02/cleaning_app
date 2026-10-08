@@ -1,5 +1,21 @@
 # Terra — Organic Design
 
+## UI/UX workflow (mandatory)
+
+Todo trabajo frontend debe usar las dos skills instaladas en este orden:
+
+1. **ui-ux-pro-max primero:** define y verifica la dirección visual, tokens, tipografía, layout, interacción, accesibilidad y guía específica de Flutter. Las decisiones deben quedar reflejadas aquí o en la spec de la feature antes de implementar.
+2. **Impeccable después:** audita la interfaz real implementada, revisa UX, accesibilidad, responsive, rendimiento y estados límite, y aplica el pulido final. Sus hallazgos deben resolverse antes de cerrar la tarea.
+
+La primera skill establece la dirección; la segunda valida y eleva la calidad de la implementación. Este flujo no sustituye los requisitos funcionales ni los criterios de aceptación.
+
+### Evidencia requerida
+
+- Registrar las decisiones y consultas relevantes de ui-ux-pro-max.
+- Ejecutar Impeccable sobre las pantallas o componentes modificados y registrar su resultado.
+- Validar safe areas, targets táctiles, contraste, texto dinámico, estados de carga/error y dispositivos objetivo.
+- Documentar cualquier excepción a este orden en el plan de la feature.
+
 ## North Star: "Rooted Warmth"
 Calm, grounded, and human. Earthy tones, soft shapes, and natural textures create a warm, approachable experience. The camera is the main screen; everything else is glanceable, because the app is used outdoors.
 

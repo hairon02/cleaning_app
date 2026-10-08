@@ -102,6 +102,15 @@ async def upload_photo(
         dest_path.unlink(missing_ok=True)
         raise HTTPException(status_code=422, detail="file must be a valid image")
 
+    # The client creates the anonymous device id on first launch. Register it
+    # lazily so the photos/cells/ledger foreign keys remain valid without a
+    # separate signup request.
+    conn.execute(
+        "INSERT OR IGNORE INTO users (id, display_name) VALUES (?, ?)",
+        (user_id, "Guest"),
+    )
+    conn.commit()
+
     # ------------------------------------------------------------------
     # 3. Compute pHash and check for duplicates
     # ------------------------------------------------------------------

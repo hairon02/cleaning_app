@@ -2,6 +2,12 @@
 
 ## Enfoque
 
+### Proceso visual obligatorio
+
+Usar primero **ui-ux-pro-max** para definir la experiencia PWA responsive, instalación, safe areas, permisos, estados de conexión y comportamiento entre Safari móvil y escritorio. Después usar **Impeccable** para auditar la experiencia instalada y corregir viewport, accesibilidad, touch targets, feedback y rendimiento.
+
+Registrar ambas pasadas y sus correcciones como parte de la validación final de la PWA.
+
 Dos pasos independientes: (A) servir el build de Flutter desde FastAPI y (B) exponer el backend por HTTPS para el iPhone. Se documenta tanto Cloudflare Tunnel (sin certificado local) como mkcert (sin dependencia de Cloudflare).
 
 ## Decisiones técnicas

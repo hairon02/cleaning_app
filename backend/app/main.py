@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import UPLOAD_DIR
 from app.db import init_db
@@ -19,6 +20,16 @@ app = FastAPI(
     description="Local backend for AI-powered outdoor verification and fog-of-war map",
     version="0.1.0",
     lifespan=lifespan,
+)
+
+# Flutter Web is served from the HTTPS tunnel while the API runs locally.
+# The anonymous MVP does not use cookies or credentialed requests.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 app.include_router(upload_router, prefix="/api")

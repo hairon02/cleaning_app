@@ -36,3 +36,6 @@
 ## Documentación
 
 - [ ] Actualizar `README.md` raíz con los comandos exactos de ambas opciones y cómo hacer el build de Flutter.
+- [ ] Usar ui-ux-pro-max para definir/verificar la experiencia responsive de la PWA.
+- [ ] Usar Impeccable para auditar y pulir la experiencia instalada.
+- [ ] Registrar y resolver los hallazgos de ambas skills.

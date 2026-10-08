@@ -6,7 +6,10 @@ from app.config import DB_PATH, SCHEMA_PATH
 
 def get_conn() -> sqlite3.Connection:
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
-    conn = sqlite3.connect(DB_PATH)
+    # FastAPI may create the dependency in its worker thread and consume it
+    # from the async endpoint thread. Each request owns its connection, so it
+    # is safe to allow that hand-off while still avoiding shared connections.
+    conn = sqlite3.connect(DB_PATH, check_same_thread=False)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys = ON;")
     return conn
