@@ -15,7 +15,7 @@
 
 ### Infraestructura base
 
-3. **003 · Photo Upload & Verification Pipeline** — Endpoint `POST /upload`: recibe la foto, con latitud, longitud y hora tomadas por el cliente en el momento de la captura (API de geolocalización del navegador); el servidor guarda además su propia hora como referencia. Calcula pHash, detecta duplicados, llama a Gemma y guarda el resultado en `photos` con el estado correcto (`verified` | `rejected` | `duplicate` | `pending_review`). Es el núcleo de toda la mecánica. Nota: que las fotos vengan solo de la cámara lo impone la interfaz, no el servidor.
+3. **003 · Photo Upload & Verification Pipeline** — ✅ Endpoint `POST /upload`: recibe la foto, con latitud, longitud y hora tomadas por el cliente en el momento de la captura (API de geolocalización del navegador); el servidor guarda además su propia hora como referencia. Calcula pHash, detecta duplicados, llama a Gemma y guarda el resultado en `photos` con el estado correcto (`verified` | `rejected` | `duplicate` | `pending_review`). Es el núcleo de toda la mecánica. Nota: que las fotos vengan solo de la cámara lo impone la interfaz, no el servidor.
 
 5. **005 · Camera Capture Screen** — Pantalla principal: cámara en tiempo real (sin galería), botón de captura, GPS y hora registrados en el momento, feedback visual mientras se sube y verifica la foto.
 

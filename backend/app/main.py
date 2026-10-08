@@ -4,6 +4,7 @@ from fastapi import FastAPI
 
 from app.config import UPLOAD_DIR
 from app.db import init_db
+from app.routes.upload import router as upload_router
 
 
 @asynccontextmanager
@@ -19,6 +20,8 @@ app = FastAPI(
     version="0.1.0",
     lifespan=lifespan,
 )
+
+app.include_router(upload_router, prefix="/api")
 
 
 @app.get("/health")
