@@ -12,6 +12,7 @@ class BottomNav extends StatelessWidget {
         selectedIndex: selectedIndex,
         onDestinationSelected: onSelected,
         indicatorColor: Colors.transparent,
+        animationDuration: const Duration(milliseconds: 1000),
         destinations: const [
           NavigationDestination(
             icon: _NavIcon(Icons.camera_alt_outlined),

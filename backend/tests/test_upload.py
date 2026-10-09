@@ -42,6 +42,13 @@ CREATE TABLE IF NOT EXISTS users (
     display_name TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+CREATE TABLE IF NOT EXISTS cells (
+    user_id TEXT NOT NULL,
+    cell_id TEXT NOT NULL,
+    cleared_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (user_id, cell_id),
+    FOREIGN KEY(user_id) REFERENCES users(id)
+);
 """
 
 # A shared in-memory DB that allows cross-thread access for testing
@@ -120,6 +127,12 @@ def test_upload_verified(tmp_path: Path, client, monkeypatch: pytest.MonkeyPatch
         lambda path: good_result,
     )
 
+    award_calls = []
+    monkeypatch.setattr(
+        "app.routes.upload._award_points",
+        lambda user_id, photo_id, conn, *, is_new_cell=False: award_calls.append(is_new_cell),
+    )
+
     resp = _upload(client, img)
     assert resp.status_code == 200, resp.text
     body = resp.json()
@@ -127,6 +140,15 @@ def test_upload_verified(tmp_path: Path, client, monkeypatch: pytest.MonkeyPatch
     assert body["description"] == "A sunny park"
     assert "park" in body["tags"]
     assert body["photo_id"]
+    assert award_calls == [True]
+
+    map_resp = client.get(
+        "/api/map",
+        params={"user_id": "user-abc", "bbox": "19.42,-99.14,19.45,-99.12"},
+    )
+    assert map_resp.status_code == 200, map_resp.text
+    assert map_resp.json()["total_cleared"] == 1
+    assert len(map_resp.json()["cleared"]) == 1
 
 
 # ---------------------------------------------------------------------------

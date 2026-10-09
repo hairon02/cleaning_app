@@ -5,6 +5,8 @@ import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../services/api_service.dart';
+import '../theme/app_theme.dart';
+import '../widgets/app_button.dart';
 
 class CameraScreen extends StatefulWidget {
   const CameraScreen({super.key});
@@ -81,13 +83,24 @@ class _CameraScreenState extends State<CameraScreen> {
 
   void _showResult(PhotoResult result) {
     final (icon, color, text) = switch (result.status) {
-      'verified' => ('✅', Colors.green, '${result.description ?? 'Photo verified'}'),
-      'duplicate' => ('♻️', Colors.amber, 'This photo is a duplicate.'),
-      'rejected' => ('❌', Colors.red, 'This photo was rejected.'),
-      _ => ('⏳', Colors.grey, 'Photo is pending review.'),
+      'verified' => (Icons.check_circle, AppColors.forest, result.description ?? 'Photo verified.'),
+      'duplicate' => (Icons.copy, AppColors.terracotta, 'This photo is a duplicate.'),
+      'rejected' => (Icons.cancel, AppColors.slate, 'This photo was rejected.'),
+      _ => (Icons.hourglass_top, AppColors.slate, 'Photo is pending review.'),
     };
     final challenges = result.challengesCompleted.isEmpty ? '' : ' Challenges: ${result.challengesCompleted.join(', ')}';
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(backgroundColor: color, content: Text('$icon $text$challenges')));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: color,
+        content: Row(
+          children: [
+            Icon(icon, color: AppColors.beige),
+            const SizedBox(width: 12),
+            Expanded(child: Text('$text$challenges')),
+          ],
+        ),
+      ),
+    );
   }
 
   void _showError(String message) => ScaffoldMessenger.of(context).showSnackBar(
@@ -102,7 +115,27 @@ class _CameraScreenState extends State<CameraScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (_error != null) return SafeArea(child: Center(child: Padding(padding: const EdgeInsets.all(24), child: Column(mainAxisSize: MainAxisSize.min, children: [Text(_error!, textAlign: TextAlign.center), const SizedBox(height: 16), FilledButton(onPressed: _initialize, child: const Text('Retry'))]))));
+    if (_error != null) {
+      return SafeArea(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(32),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.no_photography_outlined, size: 64, color: AppColors.terracotta),
+                const SizedBox(height: 20),
+                const Text('Camera unavailable', style: TextStyle(color: AppColors.forest, fontSize: 24, fontWeight: FontWeight.w700)),
+                const SizedBox(height: 8),
+                Text(_error!, textAlign: TextAlign.center, style: const TextStyle(color: AppColors.slate)),
+                const SizedBox(height: 24),
+                AppButton(label: 'Try again', icon: Icons.refresh, onPressed: _initialize),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
     final controller = _controller;
     if (controller == null || !controller.value.isInitialized) return const SafeArea(child: Center(child: CircularProgressIndicator()));
     return SafeArea(
@@ -124,7 +157,7 @@ class _CameraScreenState extends State<CameraScreen> {
                 child: Text(
                   _captureInfo!,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                  style: const TextStyle(color: AppColors.beige, fontWeight: FontWeight.w600),
                 ),
               ),
             ),

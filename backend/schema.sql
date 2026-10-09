@@ -53,6 +53,7 @@ CREATE TABLE IF NOT EXISTS points_ledger (
 );
 
 CREATE INDEX IF NOT EXISTS idx_photos_user_status ON photos(user_id, status);
+CREATE INDEX IF NOT EXISTS idx_photos_map_viewport ON photos(user_id, status, lat, lon);
 CREATE INDEX IF NOT EXISTS idx_photos_phash ON photos(phash);
 CREATE INDEX IF NOT EXISTS idx_cells_user ON cells(user_id);
 CREATE INDEX IF NOT EXISTS idx_ledger_user ON points_ledger(user_id);

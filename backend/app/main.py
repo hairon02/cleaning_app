@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import UPLOAD_DIR
 from app.db import init_db
+from app.routes.map import router as map_router
 from app.routes.upload import router as upload_router
 
 
@@ -27,12 +28,14 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
+    allow_origin_regex=r"https?://.*",
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 app.include_router(upload_router, prefix="/api")
+app.include_router(map_router, prefix="/api")
 
 
 @app.get("/health")

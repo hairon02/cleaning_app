@@ -2,20 +2,31 @@
 
 ## Qué hace
 
-Pantalla del mapa en Flutter que muestra las celdas despejadas del usuario y un overlay de niebla semitransparente sobre el resto. El usuario puede hacer zoom y pan.
+Pantalla de mapa en Flutter con el mapa base a color y fotos verificadas del usuario como pines de ubicación. Cada pin muestra una miniatura vertical con borde claro y punta inferior anclada a las coordenadas exactas de captura. El usuario puede hacer zoom y pan.
 
 ## Por qué existe
 
-El mapa es la recompensa visual de explorar: ver cómo se aclara el territorio motiva a seguir saliendo. Debe cargarse rápido y ser legible en segundos.
+El mapa es el diario geográfico de la exploración: al desplazarse se cargan las fotos de esa zona; al acercarse, los pines cercanos se separan y aparecen más miniaturas. Debe moverse con fluidez, cargar miniaturas ligeras y mantener cada pin en su coordenada real.
+
+### Dirección visual y comportamiento
+
+- Usar un mapa vectorial personalizado de colores pastel vivos: agua azul, parques y vegetación verdes, calles visibles en tonos cálidos sin amarillo; ocultar edificios, nombres de calles y señalizaciones.
+- Representar cada foto como miniatura vertical de 62 × 72 dp, con marco blanco fino, sombra suave y punta centrada hacia la coordenada de captura.
+- Al alejar el zoom, conservar algunas fotos representativas por zona; al acercarse, revelar progresivamente más pines sin mover sus coordenadas.
+- Desvanecer suavemente el grupo anterior de pines al cambiar la densidad y bloquear la rotación del mapa.
+- Consultar fotos por bbox al terminar pan/zoom, con debounce de 500 ms y miniaturas cacheables de hasta 240 × 320 px.
 
 ## Criterios de aceptación
 
-- [ ] Usa `flutter_map` con tiles de OpenStreetMap como capa base.
-- [ ] Al entrar en la pantalla, se llama a `GET /map?bbox=...` con el bbox del viewport actual.
-- [ ] Las celdas despejadas del usuario se pintan sin overlay (mapa visible).
-- [ ] El resto del bbox se cubre con un `PolygonLayer` gris semitransparente (70 % de opacidad).
-- [ ] Cuando el usuario hace pan o zoom significativo, se recarga el bbox del mapa.
-- [ ] El mapa se centra inicialmente en la última posición conocida del usuario.
-- [ ] No se muestran celdas ni ubicaciones de otros usuarios.
-- [ ] Si no hay conexión a internet (tiles), se muestra un fondo gris con las celdas despejadas del usuario igualmente visibles.
-- [ ] La pantalla incluye un contador de celdas despejadas en una esquina ("42 zonas exploradas").
+- [ ] Usa MapLibre para dibujar un estilo vectorial personalizado con tiles de OpenFreeMap y atribución OpenFreeMap/OpenStreetMap.
+- [x] Al entrar en la pantalla, se llama a `GET /map?bbox=...` con el bbox del viewport actual.
+- [x] El mapa base permanece a color; no se pinta cuadrícula, máscaras circulares ni niebla gris sobre tiles.
+- [x] Cada foto verificada aparece como pin con miniatura y punta hacia la ubicación capturada.
+- [x] Al alejar el zoom permanecen algunas fotos; al acercarse aparecen progresivamente más fotos sin desplazar su ubicación.
+- [x] Los cambios de densidad se animan con fade y la rotación está desactivada.
+- [x] El resto del bbox se mantiene como mapa base a color, sin cuadrícula ni máscara.
+- [x] Cuando el usuario termina pan o zoom, se recarga el bbox con debounce de 500 ms.
+- [x] El mapa se centra inicialmente en la última posición conocida del usuario.
+- [x] No se muestran celdas ni fotos de otros usuarios.
+- [x] No muestra progreso de celdas ni áreas desbloqueadas; solo fotos ubicadas sobre el mapa base.
+- [ ] El estilo conserva agua azul, áreas verdes y calles pastel, sin huellas de edificios, etiquetas ni señalizaciones.

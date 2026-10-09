@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'screens/camera_screen.dart';
+import 'screens/map_screen.dart';
 import 'theme/app_theme.dart';
 import 'widgets/bottom_nav.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: '.env', isOptional: true);
   runApp(const MainApp());
 }
 
@@ -34,7 +38,7 @@ class _AppShellState extends State<AppShell> {
   Widget build(BuildContext context) {
     final screens = <Widget>[
       const CameraScreen(),
-      const _PlaceholderScreen(title: 'Map'),
+      const MapScreen(),
       const _PlaceholderScreen(title: 'Challenges'),
       const _PlaceholderScreen(title: 'Ranking'),
       const _PlaceholderScreen(title: 'Journal'),

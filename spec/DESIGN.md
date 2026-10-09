@@ -23,7 +23,7 @@ Calm, grounded, and human. Earthy tones, soft shapes, and natural textures creat
 - **Primary (`#2D4F1E`):** Forest green — actions, navigation, shutter ring, interactive states.
 - **Background (`#F5E6CC`):** Warm beige — organic, never sterile white.
 - **Accent (`#E27D60`):** Terracotta — points, streaks, challenge badges, large buttons and icons. Fills and icons only, never small text.
-- **Text / Fog (`#4A4A4A`):** Slate grey — body text, and the map fog at ~60–70% opacity. Cleared cells carry no overlay.
+- **Text (`#4A4A4A`):** Slate grey for body text.
 - **Surface (`#FBF3E4`, derived):** Lighter beige for cards, so they separate from the background without borders. Optional; remove if the tonal difference isn't needed.
 - **Palette philosophy:** Earthy and desaturated. No neon or pure-hue colors.
 - Define all colors as tokens in a single Flutter theme file; never hard-code hex values in widgets.
@@ -32,8 +32,8 @@ Calm, grounded, and human. Earthy tones, soft shapes, and natural textures creat
 - **App name & large titles:** Gebuk — decorative, used sparingly (app name, screen titles only).
 - **Body, labels, numbers, Gemma descriptions:** Literata — serif built for reading; legible at small sizes.
 - Generous line-height (1.6+ for body). Comfortable, unhurried reading.
-- Bundle both fonts as Flutter assets; never load them from the internet at runtime.
-- Before shipping, verify Gebuk covers `á é í ó ú ñ ¿ ¡` and that its license allows public/portfolio use. If it fails, fall back to Literata for titles.
+- Bundle fonts as Flutter assets; never load them from the internet at runtime. Literata is currently bundled under SIL OFL and is the active family for body and title text.
+- Gebuk remains the intended display face, but its available distribution requires a commercial embedding license. Add it only after acquiring that license and verifying coverage for `á é í ó ú ñ ¿ ¡`; until then, Literata is the approved title fallback.
 
 ## Elevation
 - Very soft shadows only: `0 4px 20px rgba(74, 74, 74, 0.08)`.
@@ -44,7 +44,7 @@ Calm, grounded, and human. Earthy tones, soft shapes, and natural textures creat
 - **Buttons:** Primary = solid forest green with beige text, large border-radius (12px). Secondary = beige bg + green text + thin green border. Terracotta buttons only for large, high-emphasis actions.
 - **Cards:** Surface fill, generous padding (24px), rounded corners (12px). No harsh borders.
 - **Inputs:** Beige background, rounded, soft green focus ring.
-- **Map fog:** Slate grey overlay on unvisited cells; cleared cells fully transparent.
+- **Map:** Colorful pastel vector basemap with blue water, green spaces, warm non-yellow roads, and photo-location pins. Hide building footprints, labels, and map signage; no fog, cell grid, or cleared-area overlay. Pan and zoom stay enabled while rotation is locked.
 
 ## Rules
 - Large touch targets, generous spacing, one-handed use.

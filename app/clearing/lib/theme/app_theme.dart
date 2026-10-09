@@ -23,11 +23,16 @@ ThemeData buildAppTheme() {
     useMaterial3: true,
     colorScheme: scheme,
     scaffoldBackgroundColor: AppColors.beige,
-    fontFamily: 'serif',
+    fontFamily: 'Literata',
+    fontFamilyFallback: const ['serif'],
     textTheme: const TextTheme(
       bodyLarge: TextStyle(color: AppColors.slate, height: 1.6),
       bodyMedium: TextStyle(color: AppColors.slate, height: 1.6),
-      titleLarge: TextStyle(color: AppColors.forest, fontWeight: FontWeight.w700),
+      titleLarge: TextStyle(
+        color: AppColors.forest,
+        fontFamily: 'Literata',
+        fontWeight: FontWeight.w700,
+      ),
     ),
     navigationBarTheme: NavigationBarThemeData(
       backgroundColor: AppColors.forest,

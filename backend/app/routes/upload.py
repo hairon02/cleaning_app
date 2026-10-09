@@ -12,6 +12,7 @@ from PIL import Image, UnidentifiedImageError
 from pydantic import BaseModel, Field
 
 from app.config import UPLOAD_DIR
+from app.cells import latlon_to_cell, mark_cleared
 from app.db import get_db
 from app.pipeline.phash import compute_phash, find_duplicate
 from app.pipeline.verify import GemmaError, verify_photo
@@ -38,27 +39,14 @@ class PhotoUploadResponse(BaseModel):
 # ---------------------------------------------------------------------------
 
 
-def _lat_lon_to_cell_id(lat: float, lon: float) -> str:  # stub for feature 004
-    """Convert GPS coordinates to a grid cell identifier."""
-    # Approximate degrees per meter:  1° lat ≈ 111 000 m, 1° lon ≈ 111 000 m * cos(lat)
-    import math
-
-    from app.config import CELL_SIZE_M
-
-    lat_step = CELL_SIZE_M / 111_000
-    lon_step = CELL_SIZE_M / (111_000 * math.cos(math.radians(lat)) + 1e-9)
-    cell_lat = int(lat / lat_step)
-    cell_lon = int(lon / lon_step)
-    return f"{cell_lat}:{cell_lon}"
-
-# stub for feature 004
-def _mark_cleared(user_id: str, cell_id: str, conn: sqlite3.Connection) -> None:
-    """Mark a grid cell as cleared for the user. Completed in feature 004."""
-    pass
-
-
 # stub for feature 005
-def _award_points(user_id: str, photo_id: str, conn: sqlite3.Connection) -> None:
+def _award_points(
+    user_id: str,
+    photo_id: str,
+    conn: sqlite3.Connection,
+    *,
+    is_new_cell: bool = False,
+) -> None:
     """Award points for a verified photo. Completed in feature 005."""
     pass
 
@@ -146,7 +134,7 @@ async def upload_photo(
     # ------------------------------------------------------------------
     # 5. Compute cell_id (always, for DB completeness)
     # ------------------------------------------------------------------
-    cell_id = _lat_lon_to_cell_id(lat, lon)
+    cell_id = latlon_to_cell(lat, lon)
 
     # ------------------------------------------------------------------
     # 6. Persist to DB
@@ -181,8 +169,8 @@ async def upload_photo(
     # 7. Side effects for verified photos (stubs)
     # ------------------------------------------------------------------
     if status == "verified":
-        _mark_cleared(user_id, cell_id, conn)
-        _award_points(user_id, photo_id, conn)
+        is_new_cell = mark_cleared(user_id, cell_id, conn)
+        _award_points(user_id, photo_id, conn, is_new_cell=is_new_cell)
 
     # ------------------------------------------------------------------
     # 8. Build response

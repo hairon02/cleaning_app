@@ -81,3 +81,6 @@ desktop.ini
 # Credenciales o envs locales de Flutter (si llegas a usar `.env` en la app)                              
 .env*                                                                                                     
 !.env.example
+app/clearing/linux/flutter/generated_plugin_registrant.cc
+app/clearing/linux/flutter/generated_plugins.cmake
+app/clearing/macos/Flutter/GeneratedPluginRegistrant.swift
