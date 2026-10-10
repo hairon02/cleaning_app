@@ -30,10 +30,12 @@ class PhotoResult {
 }
 
 class MapResult {
-  const MapResult({required this.photos});
+  const MapResult({required this.photos, required this.totalCleared});
   final List<MapPhoto> photos;
+  final int totalCleared;
 
   factory MapResult.fromJson(Map<String, dynamic> json) => MapResult(
+    totalCleared: (json['total_cleared'] as num?)?.toInt() ?? 0,
     photos: (json['photos'] as List? ?? const [])
         .map(
           (photo) => MapPhoto.fromJson(
