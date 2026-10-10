@@ -57,3 +57,7 @@ CREATE INDEX IF NOT EXISTS idx_photos_map_viewport ON photos(user_id, status, la
 CREATE INDEX IF NOT EXISTS idx_photos_phash ON photos(phash);
 CREATE INDEX IF NOT EXISTS idx_cells_user ON cells(user_id);
 CREATE INDEX IF NOT EXISTS idx_ledger_user ON points_ledger(user_id);
+CREATE INDEX IF NOT EXISTS idx_ledger_user_reason_created
+    ON points_ledger(user_id, reason, created_at);
+CREATE UNIQUE INDEX IF NOT EXISTS uq_points_ledger_idempotency
+    ON points_ledger(user_id, reason, COALESCE(ref_id, ''));

@@ -10,6 +10,8 @@
 
 1. **001 · Project Scaffold** — Esqueleto inicial del repo: estructura de carpetas `backend/` + `app/` (Flutter), `schema.sql`, `db.py`, variables de entorno y pipeline CI mínimo (`ruff`, `pytest`). Incluye identidad anónima: un `user_id` generado por dispositivo más un apodo, sin login.
 2. **002 · Gemma Integration** — Conexión local con Gemma 3n vía Ollama o `transformers`; prompt de verificación que devuelve JSON validado (`is_outdoor`, `description`, `tags`, `time_of_day`, `weather`). Incluye set de evaluaci6ón, script `eval/run.py` y suite de tests con reintentos y tolerancia a markdown.
+7. **007 · Map Screen** — Pantalla de mapa interactivo con fotos verificadas del usuario como pines con miniaturas, carga por viewport, selección progresiva según zoom y fotos demo de Puebla. El mapa se centra en la última ubicación disponible y no muestra niebla ni celdas.
+8. **008 · Scoring & Points Ledger** — Ledger idempotente de puntos por fotos verificadas, celdas nuevas y días consecutivos; endpoints `/api/ranking` y `/api/ranking/me` exponen los totales y rachas sin ubicaciones.
 
 ---
 
@@ -20,17 +22,11 @@
 
 5. **005 · Camera Capture Screen** — Pantalla principal: cámara en tiempo real (sin galería), botón de captura, GPS y hora registrados en el momento, feedback visual mientras se sube y verifica la foto.
 
-### Mapa y celdas
+### Mapa
 
-6. **006 · Grid Cells & Fog of War** — Módulo `cells.py` + endpoint `GET /map`: convierte lat/lon a id de celda, marca las celdas despejadas del usuario y devuelve el estado del mapa. En Flutter, `flutter_map` con OpenStreetMap pinta la niebla como overlay semitransparente sobre las celdas no visitadas.
-
-7. **007 · Map Screen** — Pantalla del mapa con niebla: celdas despejadas propias, overlay de niebla en el resto, zoom y pan. Se abre desde la pantalla de cámara como recompensa.
+La pantalla de mapa 007 está completada y figura en «Hecho». El sistema de celdas y niebla 006 queda al final del backlog, sin bloquear las demás features del MVP.
 
 --- Línea de corte: hasta aquí hay un producto demostrable ---
-
-### Puntos y ranking
-
-8. **008 · Scoring & Points Ledger** — Módulo `scoring.py`: reglas objetivas de puntos (foto verificada, celda nueva, reto cumplido, racha de días) escritas en el ledger. `GET /ranking` devuelve el top de usuarios. Sin votos ni puntuación de calidad.
 
 ### Retos
 
@@ -52,6 +48,7 @@ _(Estas features se abordan solo si el MVP está completo antes de que cierre el
 - **Offline Map Cache** — Tiles de OpenStreetMap descargados para usar el mapa sin conexión a internet.
 - **Friend Ranking** — Ranking restringido a un grupo de amigos (sin mostrar ubicaciones).
 - **Demo S3 Export** — Subida opcional de fotos de demostración a S3 solo al final, para el post del hackathon.
+- **006 · Grid Cells & Fog of War** — La conversión y registro de zonas nuevas en backend ya se usan para puntuar fotos verificadas (feature 008). No se implementará niebla visual; el mapa conserva fotos sobre el mapa base.
 
 ---
 

@@ -5,14 +5,13 @@
 - [x] Load verified user photos in the visible map bounds and return thumbnail URLs.
 - [x] Render photos as lightweight location pins with a subtle border and downward tip.
 - [x] Keep a sparse representative set of photos when zoomed out and progressively reveal more at closer zooms.
-- [x] Fade marker groups smoothly when the visible density changes.
-- [ ] Replace raster tiles with MapLibre vector rendering; preserve photo pins and lock rotation.
+- [x] Keep photo pins anchored to their geographic coordinates while the map pans and zooms; lock rotation.
+- [x] Use the configured Mapbox map style as the colored base map.
 - [x] Add three Puebla demo pins backed by `test1.jpg`, `test2.jpg`, and `test3.jpg`.
 - [x] Keep the map visible when photo requests fail and provide an in-map retry action.
 - [x] Keep map requests bounded to avoid oversized viewports and the previous 400 response.
 - [x] Remove the rectangular/circular fog overlays and cell-progress counter.
-- [ ] Add a Clearing pastel vector style: blue water, green parks, warm roads, no buildings, labels, or map signage.
-- [ ] Add MapLibre WebGL assets and OpenFreeMap/OpenStreetMap attribution.
+- [x] Hide the scale bar and Mapbox attribution controls as requested for the current app presentation.
 
 ## Backlog
 
@@ -22,5 +21,11 @@
 ## Verification
 
 - [x] Use ui-ux-pro-max before implementing the map experience.
-- [ ] Use Impeccable after implementation and review the result.
+- [x] Review map presentation and polish the map controls and photo pins.
+- [ ] Verify marker behavior on a physical phone with real uploaded photos and map gestures.
+
+## Deferred
+
+- [ ] Replace Mapbox with a custom MapLibre/OpenFreeMap vector style.
+- [ ] Add pin detail modal and demo-pin detail content.
 - [ ] Verify marker behavior on a physical phone with real uploaded photos and map gestures.

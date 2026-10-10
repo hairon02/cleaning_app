@@ -49,6 +49,18 @@ CREATE TABLE IF NOT EXISTS cells (
     PRIMARY KEY (user_id, cell_id),
     FOREIGN KEY(user_id) REFERENCES users(id)
 );
+CREATE TABLE IF NOT EXISTS points_ledger (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    amount INTEGER NOT NULL,
+    ref_id TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (user_id, reason, ref_id),
+    FOREIGN KEY(user_id) REFERENCES users(id)
+);
+CREATE UNIQUE INDEX IF NOT EXISTS uq_points_ledger_idempotency
+    ON points_ledger(user_id, reason, COALESCE(ref_id, ''));
 """
 
 # A shared in-memory DB that allows cross-thread access for testing

@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import UPLOAD_DIR
 from app.db import init_db
 from app.routes.map import router as map_router
+from app.routes.ranking import router as ranking_router
 from app.routes.upload import router as upload_router
 
 
@@ -36,6 +37,7 @@ app.add_middleware(
 
 app.include_router(upload_router, prefix="/api")
 app.include_router(map_router, prefix="/api")
+app.include_router(ranking_router, prefix="/api")
 
 
 @app.get("/health")

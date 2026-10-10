@@ -11,11 +11,12 @@ from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from PIL import Image, UnidentifiedImageError
 from pydantic import BaseModel, Field
 
-from app.config import UPLOAD_DIR
 from app.cells import latlon_to_cell, mark_cleared
+from app.config import POINTS_NEW_CELL, POINTS_PHOTO_VERIFIED, UPLOAD_DIR
 from app.db import get_db
 from app.pipeline.phash import compute_phash, find_duplicate
 from app.pipeline.verify import GemmaError, verify_photo
+from app.scoring import PointReason, _check_and_award_streak, award_points
 
 logger = logging.getLogger(__name__)
 
@@ -35,11 +36,10 @@ class PhotoUploadResponse(BaseModel):
 
 
 # ---------------------------------------------------------------------------
-# Stubs — completed by later features
+# Points integration
 # ---------------------------------------------------------------------------
 
 
-# stub for feature 005
 def _award_points(
     user_id: str,
     photo_id: str,
@@ -47,8 +47,28 @@ def _award_points(
     *,
     is_new_cell: bool = False,
 ) -> None:
-    """Award points for a verified photo. Completed in feature 005."""
-    pass
+    """Award verified-photo, new-cell, and consecutive-day points."""
+    award_points(
+        user_id,
+        PointReason.PHOTO_VERIFIED,
+        POINTS_PHOTO_VERIFIED,
+        photo_id,
+        conn,
+    )
+    if is_new_cell:
+        row = conn.execute(
+            "SELECT cell_id FROM photos WHERE id = ? AND user_id = ?",
+            (photo_id, user_id),
+        ).fetchone()
+        if row is not None:
+            award_points(
+                user_id,
+                PointReason.NEW_CELL,
+                POINTS_NEW_CELL,
+                row["cell_id"],
+                conn,
+            )
+    _check_and_award_streak(user_id, conn)
 
 
 # ---------------------------------------------------------------------------
@@ -166,7 +186,7 @@ async def upload_photo(
     logger.info("Photo %s | status=%s | user=%s", photo_id, status, user_id)
 
     # ------------------------------------------------------------------
-    # 7. Side effects for verified photos (stubs)
+    # 7. Side effects for verified photos
     # ------------------------------------------------------------------
     if status == "verified":
         is_new_cell = mark_cleared(user_id, cell_id, conn)

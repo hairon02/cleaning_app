@@ -10,7 +10,7 @@ El mapa es el diario geográfico de la exploración: al desplazarse se cargan la
 
 ### Dirección visual y comportamiento
 
-- Usar un mapa vectorial personalizado de colores pastel vivos: agua azul, parques y vegetación verdes, calles visibles en tonos cálidos sin amarillo; ocultar edificios, nombres de calles y señalizaciones.
+- Usar el estilo de mapa Mapbox configurado en la app como mapa base a color.
 - Representar cada foto como miniatura vertical de 62 × 72 dp, con marco blanco fino, sombra suave y punta centrada hacia la coordenada de captura.
 - Al alejar el zoom, conservar algunas fotos representativas por zona; al acercarse, revelar progresivamente más pines sin mover sus coordenadas.
 - Desvanecer suavemente el grupo anterior de pines al cambiar la densidad y bloquear la rotación del mapa.
@@ -18,7 +18,7 @@ El mapa es el diario geográfico de la exploración: al desplazarse se cargan la
 
 ## Criterios de aceptación
 
-- [ ] Usa MapLibre para dibujar un estilo vectorial personalizado con tiles de OpenFreeMap y atribución OpenFreeMap/OpenStreetMap.
+- [x] Usa Mapbox para dibujar el mapa base configurado en la app.
 - [x] Al entrar en la pantalla, se llama a `GET /map?bbox=...` con el bbox del viewport actual.
 - [x] El mapa base permanece a color; no se pinta cuadrícula, máscaras circulares ni niebla gris sobre tiles.
 - [x] Cada foto verificada aparece como pin con miniatura y punta hacia la ubicación capturada.
@@ -29,4 +29,4 @@ El mapa es el diario geográfico de la exploración: al desplazarse se cargan la
 - [x] El mapa se centra inicialmente en la última posición conocida del usuario.
 - [x] No se muestran celdas ni fotos de otros usuarios.
 - [x] No muestra progreso de celdas ni áreas desbloqueadas; solo fotos ubicadas sobre el mapa base.
-- [ ] El estilo conserva agua azul, áreas verdes y calles pastel, sin huellas de edificios, etiquetas ni señalizaciones.
+- [x] El mapa base permanece a color y se ocultan la escala y los controles de marca/atribución solicitados.
