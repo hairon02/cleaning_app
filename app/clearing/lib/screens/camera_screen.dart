@@ -85,7 +85,7 @@ class _CameraScreenState extends State<CameraScreen> {
     final (icon, color, text) = switch (result.status) {
       'verified' => (Icons.check_circle, AppColors.forest, result.description ?? 'Photo verified.'),
       'duplicate' => (Icons.copy, AppColors.terracotta, 'This photo is a duplicate.'),
-      'rejected' => (Icons.cancel, AppColors.slate, 'This photo was rejected.'),
+      'rejected' => (Icons.cancel, AppColors.danger, 'This photo was rejected.'),
       _ => (Icons.hourglass_top, AppColors.slate, 'Photo is pending review.'),
     };
     final challenges = result.challengesCompleted.isEmpty ? '' : ' Challenges: ${result.challengesCompleted.join(', ')}';

@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 
 abstract final class AppColors {
-  static const forest = Color(0xFF2D4F1E);
-  static const beige = Color(0xFFF5E6CC);
-  static const terracotta = Color(0xFFE27D60);
-  static const slate = Color(0xFF4A4A4A);
-  static const surface = Color(0xFFFBF3E4);
-  static const iconSurface = Color(0xFFFFFFFF);
+  static const forest = Color(0xFF283618);
+  static const olive = Color(0xFF606C38);
+  static const beige = Color(0xFFFEFAE0);
+  static const terracotta = Color(0xFFDDA15E);
+  static const ochre = Color(0xFFBC6C25);
+  static const danger = Color(0xFF731414);
+  static const slate = Color(0xFF283618);
+  static const surface = Color(0xFFFEFAE0);
+  static const iconSurface = Color(0xFFFEFAE0);
 }
 
 ThemeData buildAppTheme() {
@@ -14,7 +17,8 @@ ThemeData buildAppTheme() {
     seedColor: AppColors.forest,
     brightness: Brightness.light,
     primary: AppColors.forest,
-    secondary: AppColors.terracotta,
+    secondary: AppColors.olive,
+    tertiary: AppColors.ochre,
     surface: AppColors.surface,
     onSurface: AppColors.slate,
   );
@@ -47,8 +51,8 @@ ThemeData buildAppTheme() {
       contentTextStyle: TextStyle(color: AppColors.beige),
     ),
     floatingActionButtonTheme: const FloatingActionButtonThemeData(
-      backgroundColor: AppColors.terracotta,
-      foregroundColor: AppColors.beige,
+      backgroundColor: AppColors.ochre,
+      foregroundColor: AppColors.surface,
     ),
   );
 }

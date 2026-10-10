@@ -52,7 +52,7 @@ class _NavIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Icon(
         icon,
-        color: selected ? AppColors.terracotta : AppColors.iconSurface,
+        color: selected ? AppColors.terracotta : AppColors.beige,
         size: 25,
       );
 }

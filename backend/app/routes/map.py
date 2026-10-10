@@ -92,7 +92,6 @@ async def get_map(
     photos.extend(
         {**photo, "demo": True}
         for photo in DEMO_PHOTOS
-        if lat_min <= photo["lat"] <= lat_max and lon_min <= photo["lon"] <= lon_max
     )
     return {"cleared": cleared, "total_cleared": total, "photos": photos}
 

@@ -66,15 +66,8 @@ class DiscoveryMapState extends State<DiscoveryMap> {
         ),
       );
       await map.scaleBar.updateSettings(ScaleBarSettings(enabled: false));
-      // Keep Mapbox attribution visible as required by the map style terms,
-      // but move it away from the bottom edge and hide the verbose text.
       await map.attribution.updateSettings(
-        AttributionSettings(
-          enabled: true,
-          position: OrnamentPosition.TOP_LEFT,
-          marginTop: 8,
-          marginLeft: 8,
-        ),
+        AttributionSettings(enabled: false),
       );
       await map.setBounds(
         CameraBoundsOptions(maxZoom: 20, maxPitch: 0, minPitch: 0),

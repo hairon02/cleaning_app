@@ -45,7 +45,7 @@ class AppButton extends StatelessWidget {
           label: child,
           style: FilledButton.styleFrom(
             backgroundColor: AppColors.terracotta,
-            foregroundColor: AppColors.beige,
+            foregroundColor: AppColors.forest,
             minimumSize: const Size(0, 52),
             shape: _shape,
           ),

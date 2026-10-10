@@ -27,6 +27,7 @@ class _MapScreenState extends State<MapScreen> {
   String? _userId;
   List<MapPhoto> _photos = const [];
   LatLng _center = const LatLng(19.4326, -99.1332);
+  bool _hasUserLocation = false;
   bool _locationDisabled = false;
   bool _loadingPhotos = false;
   String? _error;
@@ -82,6 +83,7 @@ class _MapScreenState extends State<MapScreen> {
       }
       final position = await Geolocator.getCurrentPosition();
       _center = LatLng(position.latitude, position.longitude);
+      _hasUserLocation = true;
       if (mounted) {
         setState(() => _locationDisabled = false);
         _map.currentState?.moveTo(_center);
@@ -196,7 +198,7 @@ class _MapScreenState extends State<MapScreen> {
                             : Icons.explore_outlined,
                         size: 19,
                         color: _locationDisabled
-                            ? AppColors.terracotta
+                            ? AppColors.danger
                             : AppColors.forest,
                       ),
                       const SizedBox(width: 6),
