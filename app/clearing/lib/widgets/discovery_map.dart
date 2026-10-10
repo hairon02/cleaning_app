@@ -286,15 +286,15 @@ class _PhotoPin extends StatelessWidget {
           height: 62,
           padding: const EdgeInsets.all(3),
           decoration: BoxDecoration(
-            color: AppColors.iconSurface,
+            color: AppColors.beige,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: isToday ? AppColors.terracotta : AppColors.iconSurface,
+              color: isToday ? AppColors.terracotta : AppColors.beige,
               width: isToday ? 3 : 1.4,
             ),
             boxShadow: [
               BoxShadow(
-                color: AppColors.slate.withValues(alpha: 0.14),
+                color: AppColors.forest.withValues(alpha: 0.14),
                 blurRadius: 12,
                 offset: const Offset(0, 3),
               ),
@@ -310,7 +310,7 @@ class _PhotoPin extends StatelessWidget {
                 color: AppColors.beige,
                 child: Icon(
                   Icons.image_not_supported_outlined,
-                  color: AppColors.slate,
+                  color: AppColors.forest,
                 ),
               ),
               loadingBuilder: (context, child, progress) => progress == null
@@ -342,7 +342,7 @@ class _PinTipPainter extends CustomPainter {
       ..lineTo(size.width / 2, size.height)
       ..lineTo(size.width, 0)
       ..close();
-    canvas.drawPath(path, Paint()..color = AppColors.iconSurface);
+    canvas.drawPath(path, Paint()..color = AppColors.beige);
   }
 
   @override

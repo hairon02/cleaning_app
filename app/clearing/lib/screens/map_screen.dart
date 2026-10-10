@@ -254,7 +254,7 @@ class _MapScreenState extends State<MapScreen> {
             right: 16,
             bottom: MediaQuery.paddingOf(context).bottom + 16,
             child: Material(
-              color: AppColors.surface,
+              color: AppColors.beige,
               borderRadius: BorderRadius.circular(12),
               child: Padding(
                 padding: const EdgeInsets.all(12),
@@ -273,11 +273,11 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   BoxDecoration _surface(double radius) => BoxDecoration(
-    color: AppColors.iconSurface,
+    color: AppColors.beige,
     borderRadius: BorderRadius.circular(radius),
     boxShadow: [
       BoxShadow(
-        color: AppColors.slate.withValues(alpha: 0.08),
+        color: AppColors.forest.withValues(alpha: 0.08),
         offset: const Offset(0, 4),
         blurRadius: 20,
       ),
@@ -292,7 +292,7 @@ class _MapScreenState extends State<MapScreen> {
         child: IconButton(
           tooltip: tooltip,
           onPressed: onPressed,
-          icon: Icon(icon, color: AppColors.slate),
+          icon: Icon(icon, color: AppColors.forest),
         ),
       );
 }

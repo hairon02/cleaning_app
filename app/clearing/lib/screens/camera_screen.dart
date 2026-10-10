@@ -86,7 +86,7 @@ class _CameraScreenState extends State<CameraScreen> {
       'verified' => (Icons.check_circle, AppColors.forest, result.description ?? 'Photo verified.'),
       'duplicate' => (Icons.copy, AppColors.terracotta, 'This photo is a duplicate.'),
       'rejected' => (Icons.cancel, AppColors.danger, 'This photo was rejected.'),
-      _ => (Icons.hourglass_top, AppColors.slate, 'Photo is pending review.'),
+      _ => (Icons.hourglass_top, AppColors.forest, 'Photo is pending review.'),
     };
     final challenges = result.challengesCompleted.isEmpty ? '' : ' Challenges: ${result.challengesCompleted.join(', ')}';
     ScaffoldMessenger.of(context).showSnackBar(
@@ -127,7 +127,7 @@ class _CameraScreenState extends State<CameraScreen> {
                 const SizedBox(height: 20),
                 const Text('Camera unavailable', style: TextStyle(color: AppColors.forest, fontSize: 24, fontWeight: FontWeight.w700)),
                 const SizedBox(height: 8),
-                Text(_error!, textAlign: TextAlign.center, style: const TextStyle(color: AppColors.slate)),
+                Text(_error!, textAlign: TextAlign.center, style: const TextStyle(color: AppColors.forest)),
                 const SizedBox(height: 24),
                 AppButton(label: 'Try again', icon: Icons.refresh, onPressed: _initialize),
               ],

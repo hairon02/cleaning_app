@@ -7,9 +7,6 @@ abstract final class AppColors {
   static const terracotta = Color(0xFFDDA15E);
   static const ochre = Color(0xFFBC6C25);
   static const danger = Color(0xFF731414);
-  static const slate = Color(0xFF283618);
-  static const surface = Color(0xFFFEFAE0);
-  static const iconSurface = Color(0xFFFEFAE0);
 }
 
 ThemeData buildAppTheme() {
@@ -19,8 +16,8 @@ ThemeData buildAppTheme() {
     primary: AppColors.forest,
     secondary: AppColors.olive,
     tertiary: AppColors.ochre,
-    surface: AppColors.surface,
-    onSurface: AppColors.slate,
+    surface: AppColors.beige,
+    onSurface: AppColors.forest,
   );
 
   return ThemeData(
@@ -30,8 +27,8 @@ ThemeData buildAppTheme() {
     fontFamily: 'Literata',
     fontFamilyFallback: const ['serif'],
     textTheme: const TextTheme(
-      bodyLarge: TextStyle(color: AppColors.slate, height: 1.6),
-      bodyMedium: TextStyle(color: AppColors.slate, height: 1.6),
+      bodyLarge: TextStyle(color: AppColors.forest, height: 1.6),
+      bodyMedium: TextStyle(color: AppColors.forest, height: 1.6),
       titleLarge: TextStyle(
         color: AppColors.forest,
         fontFamily: 'Literata',
@@ -47,12 +44,12 @@ ThemeData buildAppTheme() {
       ),
     ),
     snackBarTheme: const SnackBarThemeData(
-      backgroundColor: AppColors.slate,
+      backgroundColor: AppColors.forest,
       contentTextStyle: TextStyle(color: AppColors.beige),
     ),
     floatingActionButtonTheme: const FloatingActionButtonThemeData(
       backgroundColor: AppColors.ochre,
-      foregroundColor: AppColors.surface,
+      foregroundColor: AppColors.beige,
     ),
   );
 }
