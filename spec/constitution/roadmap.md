@@ -12,6 +12,7 @@
 2. **002 · Gemma Integration** — Conexión local con Gemma 3n vía Ollama o `transformers`; prompt de verificación que devuelve JSON validado (`is_outdoor`, `description`, `tags`, `time_of_day`, `weather`). Incluye set de evaluaci6ón, script `eval/run.py` y suite de tests con reintentos y tolerancia a markdown.
 7. **007 · Map Screen** — Pantalla de mapa interactivo con fotos verificadas del usuario como pines con miniaturas, carga por viewport, selección progresiva según zoom y fotos demo de Puebla. El mapa se centra en la última ubicación disponible y no muestra niebla ni celdas.
 8. **008 · Scoring & Points Ledger** — Ledger idempotente de puntos por fotos verificadas, celdas nuevas y días consecutivos; endpoints `/api/ranking` y `/api/ranking/me` exponen los totales y rachas sin ubicaciones.
+9. **009 · Challenge Bank & Daily/Weekly Selection** — Banco de retos generado offline con Gemma, filtro de seguridad y revisión manual; `/api/challenges` selecciona de forma determinista un reto diario y uno semanal.
 
 ---
 
@@ -29,8 +30,6 @@ La pantalla de mapa 007 está completada y figura en «Hecho». El sistema de ce
 --- Línea de corte: hasta aquí hay un producto demostrable ---
 
 ### Retos
-
-9. **009 · Challenge Bank & Daily/Weekly Selection** — Script offline de generación de retos con Gemma + validación JSON + filtro de seguridad (sin alturas, noche ni propiedad privada). `challenges.py` selecciona el reto del día y el semanal del banco `reviewed`. Endpoint `GET /challenges` expone ambos. Gemma nunca genera retos en vivo.
 
 10. **010 · Challenge Validation** — El criterio visual del reto activo (diario o semanal) se envía dentro de la misma llamada de verificación a Gemma, sin una segunda llamada, para no duplicar la latencia. Si la foto cumple, el backend suma los puntos correspondientes. El reto semanal vale más que el diario.
 

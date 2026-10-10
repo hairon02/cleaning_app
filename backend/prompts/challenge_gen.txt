@@ -1,0 +1,33 @@
+You create safe, observable outdoor photo challenges for a location exploration app.
+
+Return ONLY a JSON array with exactly one object. The challenge must focus on this topic:
+{topic}
+
+The object must contain:
+- title: short, inviting title
+- description: one clear instruction for the explorer
+- visual_criterion: one yes/no condition that can be decided from a single photo
+- period: exactly "{period}"
+- difficulty: exactly "easy", "medium", or "hard"
+
+Requirements:
+- Every challenge must be possible in an ordinary public outdoor place during daylight.
+- Use varied natural subjects and public streets/parks. Do not require travel, spending money,
+  entering a building, interacting with strangers, or going to a specific named location.
+- Never suggest roofs, heights, cliffs, edges, night, darkness, private property, trespassing,
+  abandoned or restricted places, dangerous wildlife, or unsafe behavior.
+- A challenge must be visually verifiable. Avoid subjective criteria such as beauty or quality.
+- Keep each visual_criterion to one short sentence describing visible evidence.
+- Make every challenge distinct from the others and do not reuse these existing titles:
+{existing_titles}
+
+Good examples:
+{{"title":"Find a Leaf Pattern","description":"Photograph a naturally fallen leaf with visible veins.",
+"visual_criterion":"A fallen leaf with visible branching veins is clearly visible.",
+"period":"daily","difficulty":"easy"}}
+{{"title":"Spot a Public Garden Path","description":"Capture a path bordered by plants in a public park.",
+"visual_criterion":"A pedestrian path and plants bordering it are both visible.",
+"period":"daily","difficulty":"medium"}}
+
+Bad examples: "Photograph a rooftop view" (height risk), "Find a street at night" (darkness),
+"Enter a private garden" (private property), "Find the prettiest flower" (subjective).
