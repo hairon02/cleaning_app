@@ -80,24 +80,29 @@ class ChallengesScreenState extends State<ChallengesScreen> {
                         ),
                         const SizedBox(height: 18),
                         Center(
-                          child: SegmentedButton<_ChallengeFilter>(
-                            segments: const [
-                              ButtonSegment(
-                                value: _ChallengeFilter.active,
-                                label: Text('Active'),
-                                icon: Icon(Icons.flag_outlined),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              _ChallengeFilterButton(
+                                label: 'Active',
+                                icon: Icons.flag_outlined,
+                                selected: _filter == _ChallengeFilter.active,
+                                inverted: false,
+                                onPressed: () => setState(
+                                  () => _filter = _ChallengeFilter.active,
+                                ),
                               ),
-                              ButtonSegment(
-                                value: _ChallengeFilter.completed,
-                                label: Text('Completed'),
-                                icon: Icon(Icons.check_circle_outline),
+                              //const SizedBox(width: 8),
+                              _ChallengeFilterButton(
+                                label: 'Completed',
+                                icon: Icons.check_circle_outline,
+                                selected: _filter == _ChallengeFilter.completed,
+                                inverted: true,
+                                onPressed: () => setState(
+                                  () => _filter = _ChallengeFilter.completed,
+                                ),
                               ),
                             ],
-                            selected: {_filter},
-                            showSelectedIcon: false,
-                            onSelectionChanged: (selection) => setState(
-                              () => _filter = selection.first,
-                            ),
                           ),
                         ),
                         const SizedBox(height: 18),
@@ -144,43 +149,137 @@ class ChallengesScreenState extends State<ChallengesScreen> {
 
 enum _ChallengeFilter { active, completed }
 
+class _ChallengeFilterButton extends StatelessWidget {
+  const _ChallengeFilterButton({
+    required this.label,
+    required this.icon,
+    required this.selected,
+    required this.inverted,
+    required this.onPressed,
+  });
+
+  final String label;
+  final IconData icon;
+  final bool selected;
+  final bool inverted;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final foreground = selected ? AppColors.beige : AppColors.forest;
+    final background = selected ? AppColors.forest : AppColors.beige;
+    return Semantics(
+      button: true,
+      selected: selected,
+      label: label,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onPressed,
+          customBorder: _TrapezoidBorder(inverted: inverted),
+          child: Ink(
+            decoration: ShapeDecoration(
+              color: background,
+              shape: _TrapezoidBorder(inverted: inverted),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 11),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(icon, size: 18, color: foreground),
+                  const SizedBox(width: 7),
+                  Text(
+                    label,
+                    style: TextStyle(
+                      color: foreground,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _TrapezoidBorder extends OutlinedBorder {
+  const _TrapezoidBorder({required this.inverted});
+
+  final bool inverted;
+
+  @override
+  EdgeInsetsGeometry get dimensions => EdgeInsets.zero;
+
+  @override
+  Path getInnerPath(Rect rect, {TextDirection? textDirection}) =>
+      _pathFor(rect);
+
+  @override
+  Path getOuterPath(Rect rect, {TextDirection? textDirection}) =>
+      _pathFor(rect);
+
+  Path _pathFor(Rect rect) {
+    final inset = rect.width < 24 ? rect.width / 2 : 12.0;
+    return Path()
+      ..moveTo(inverted ? rect.left : rect.left + inset, rect.top)
+      ..lineTo(inverted ? rect.right : rect.right - inset, rect.top)
+      ..lineTo(inverted ? rect.right - inset : rect.right, rect.bottom)
+      ..lineTo(inverted ? rect.left + inset : rect.left, rect.bottom)
+      ..close();
+  }
+
+  @override
+  void paint(Canvas canvas, Rect rect, {TextDirection? textDirection}) {}
+
+  @override
+  ShapeBorder scale(double t) => this;
+
+  @override
+  OutlinedBorder copyWith({BorderSide? side}) => this;
+}
+
 class _ChallengesHeader extends StatelessWidget {
   const _ChallengesHeader();
 
   @override
-  Widget build(BuildContext context) => CustomPaint(
-        painter: _InvertedTrapezoidPainter(),
-        child: SizedBox(
-          width: double.infinity,
-          height: 82,
-          child: Center(
-            child: Text(
-              'CHALLENGES',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 2,
-                  ),
+  Widget build(BuildContext context) => SizedBox(
+        width: double.infinity,
+        height: 64,
+        child: Center(
+          child: CustomPaint(
+            painter: _TrapezoidPainter(),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 10),
+              child: Text(
+                'CHALLENGES',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: AppColors.beige,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 1.6,
+                    ),
+              ),
             ),
           ),
         ),
       );
 }
 
-class _InvertedTrapezoidPainter extends CustomPainter {
+class _TrapezoidPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final path = Path()
-      ..moveTo(24, 0)
-      ..lineTo(size.width - 24, 0)
-      ..lineTo(size.width, size.height)
-      ..lineTo(0, size.height)
+      ..moveTo(0, 0)
+      ..lineTo(size.width, 0)
+      ..lineTo(size.width - 12, size.height)
+      ..lineTo(12, size.height)
       ..close();
     canvas.drawPath(
       path,
-      Paint()
-        ..color = AppColors.terracotta
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 2,
+      Paint()..color = AppColors.forest,
     );
   }
 
