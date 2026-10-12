@@ -45,3 +45,8 @@
 - [x] Mostrar error con acciÃ³n â€œTry againâ€ que regrese a Camera conservando el reto.
 
 - [x] Liberar la cámara durante el análisis y crear un controlador nuevo al reintentar antes de mostrar el visor.
+\n## Timeout recovery
+- [x] Align the client timeout with Gemma backend retries and reconcile the challenge state if the upload response is lost after the challenge is committed.
+
+## Timeout recovery
+- [x] Align the client timeout with Gemma backend retries and reconcile the challenge state if the upload response is lost after the challenge is committed.

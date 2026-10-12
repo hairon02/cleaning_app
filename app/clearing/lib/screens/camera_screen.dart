@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
+
 import 'dart:async';
 
 import '../services/api_service.dart';
@@ -67,17 +68,28 @@ class _CameraScreenState extends State<CameraScreen> {
         final camera = await Permission.camera.request();
         final location = await Permission.locationWhenInUse.request();
         if (!camera.isGranted || !location.isGranted) {
-          if (mounted) setState(() => _error = 'Camera and location permissions are required. Enable them in Settings and retry.');
+          if (mounted)
+            setState(
+              () => _error = 'Camera and location permissions are required. Enable them in Settings and retry.',
+            );
           return;
         }
       }
       final cameras = await availableCameras();
       if (cameras.isEmpty) {
-        if (mounted) setState(() => _error = 'No camera is available on this device.');
+        if (mounted)
+          setState(() => _error = 'No camera is available on this device.');
         return;
       }
-      final rear = cameras.firstWhere((c) => c.lensDirection == CameraLensDirection.back, orElse: () => cameras.first);
-      controller = CameraController(rear, ResolutionPreset.medium, enableAudio: false);
+      final rear = cameras.firstWhere(
+        (c) => c.lensDirection == CameraLensDirection.back,
+        orElse: () => cameras.first,
+      );
+      controller = CameraController(
+        rear,
+        ResolutionPreset.medium,
+        enableAudio: false,
+      );
       await controller.initialize();
       if (!mounted) {
         await controller.dispose();
@@ -86,7 +98,8 @@ class _CameraScreenState extends State<CameraScreen> {
       setState(() => _controller = controller);
     } catch (e) {
       await controller?.dispose();
-      if (mounted) setState(() => _error = 'Unable to initialize the camera: $e');
+      if (mounted)
+        setState(() => _error = 'Unable to initialize the camera: $e');
     } finally {
       _initializing = false;
     }
@@ -105,11 +118,16 @@ class _CameraScreenState extends State<CameraScreen> {
     setState(() => _busy = true);
     try {
       final serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) throw const _UserFacingError('Location services are disabled.');
+      if (!serviceEnabled)
+        throw const _UserFacingError('Location services are disabled.');
       var permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
-        throw const _UserFacingError('Location permission is required before taking a photo.');
+      if (permission == LocationPermission.denied)
+        permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        throw const _UserFacingError(
+          'Location permission is required before taking a photo.',
+        );
       }
       final position = await Geolocator.getCurrentPosition();
       final takenAt = DateTime.now();
@@ -133,12 +151,13 @@ class _CameraScreenState extends State<CameraScreen> {
       );
       if (!mounted) return;
       final challenge = widget.challenge;
-      final completed = result.status == 'verified' &&
+      final completed =
+          result.status == 'verified' &&
           (challenge == null ||
               result.challengesCompleted.contains(challenge.title));
       if (completed) {
         _showSuccess(challenge);
-      } else if (challenge != null) {
+      } else if (challenge != null && result.status != 'pending_review') {
         _showFlowError(
           _messageForResult(result, challenge),
           title: 'Challenge not completed',
@@ -152,6 +171,24 @@ class _CameraScreenState extends State<CameraScreen> {
     } catch (error) {
       if (mounted) {
         if (_stage == _CaptureStage.analyzing) {
+          final challenge = widget.challenge;
+          if (challenge != null) {
+            try {
+              final latest = await _api.fetchChallenges();
+              final completed =
+                  (latest.daily.id == challenge.id &&
+                      latest.daily.completedByUser) ||
+                  (latest.weekly.id == challenge.id &&
+                      latest.weekly.completedByUser);
+              if (mounted && completed) {
+                _showSuccess(challenge);
+                return;
+              }
+            } catch (_) {
+              // Keep the upload error if the backend cannot confirm completion.
+            }
+          }
+          if (!mounted) return;
           _showFlowError(
             'We couldn’t analyze your photo. Check your connection and try again.',
           );
@@ -171,7 +208,8 @@ class _CameraScreenState extends State<CameraScreen> {
     return switch (result.status) {
       'duplicate' => 'This photo looks like one you already uploaded. Try taking a new photo.',
       'rejected' => 'This photo couldn’t be verified as an outdoor scene. Try another photo outside.',
-      'pending_review' => 'Your photo could not be verified right now. Please try again.',
+      'pending_review' =>
+        'Your photo could not be verified right now. Please try again.',
       _ => 'We couldn’t complete the photo check. Please try again.',
     };
   }
@@ -184,7 +222,10 @@ class _CameraScreenState extends State<CameraScreen> {
           : 'Challenge complete! You completed “${challenge.title}”.';
     });
     _successTimer?.cancel();
-    _successTimer = Timer(const Duration(milliseconds: 2200), _returnToChallenges);
+    _successTimer = Timer(
+      const Duration(milliseconds: 2200),
+      _returnToChallenges,
+    );
   }
 
   void _showFlowError(String message, {String title = 'Photo check failed'}) {
@@ -214,8 +255,11 @@ class _CameraScreenState extends State<CameraScreen> {
   }
 
   void _showError(String message) => ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message), action: SnackBarAction(label: 'Retry', onPressed: _capture)),
-      );
+    SnackBar(
+      content: Text(message),
+      action: SnackBarAction(label: 'Retry', onPressed: _capture),
+    ),
+  );
 
   @override
   void dispose() {
@@ -237,7 +281,9 @@ class _CameraScreenState extends State<CameraScreen> {
     if (_stage == _CaptureStage.success) {
       return _CaptureStatusView(
         icon: Icons.check_circle,
-        title: widget.challenge == null ? 'Photo verified' : 'Challenge complete!',
+        title: widget.challenge == null
+            ? 'Photo verified'
+            : 'Challenge complete!',
         detail: _resultMessage ?? '',
         isSuccess: true,
         actionLabel: 'Back to Challenges',
@@ -263,13 +309,32 @@ class _CameraScreenState extends State<CameraScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.no_photography_outlined, size: 64, color: AppColors.terracotta),
+                const Icon(
+                  Icons.no_photography_outlined,
+                  size: 64,
+                  color: AppColors.terracotta,
+                ),
                 const SizedBox(height: 20),
-                const Text('Camera unavailable', style: TextStyle(color: AppColors.forest, fontSize: 24, fontWeight: FontWeight.w700)),
+                const Text(
+                  'Camera unavailable',
+                  style: TextStyle(
+                    color: AppColors.forest,
+                    fontSize: 24,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
                 const SizedBox(height: 8),
-                Text(_error!, textAlign: TextAlign.center, style: const TextStyle(color: AppColors.forest)),
+                Text(
+                  _error!,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: AppColors.forest),
+                ),
                 const SizedBox(height: 24),
-                AppButton(label: 'Try again', icon: Icons.refresh, onPressed: _initialize),
+                AppButton(
+                  label: 'Try again',
+                  icon: Icons.refresh,
+                  onPressed: _initialize,
+                ),
               ],
             ),
           ),
@@ -277,33 +342,54 @@ class _CameraScreenState extends State<CameraScreen> {
       );
     }
     final controller = _controller;
-    if (controller == null || !controller.value.isInitialized) return const SafeArea(child: Center(child: CircularProgressIndicator()));
+    if (controller == null || !controller.value.isInitialized)
+      return const SafeArea(child: Center(child: CircularProgressIndicator()));
     return SafeArea(
-      child: Stack(fit: StackFit.expand, children: [
-        CameraPreview(controller),
-        if (_captureInfo != null)
-          Positioned(
-            top: 20,
-            left: 16,
-            right: 16,
-            child: Material(
-              color: Colors.transparent,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.72),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  _captureInfo!,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(color: AppColors.beige, fontWeight: FontWeight.w600),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          CameraPreview(controller),
+          if (_captureInfo != null)
+            Positioned(
+              top: 20,
+              left: 16,
+              right: 16,
+              child: Material(
+                color: Colors.transparent,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.72),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    _captureInfo!,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: AppColors.beige,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
               ),
             ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 24),
+              child: FloatingActionButton.large(
+                onPressed: _busy ? null : _capture,
+                child: _busy
+                    ? const CircularProgressIndicator()
+                    : const Icon(Icons.camera_alt),
+              ),
+            ),
           ),
-        Align(alignment: Alignment.bottomCenter, child: Padding(padding: const EdgeInsets.only(bottom: 24), child: FloatingActionButton.large(onPressed: _busy ? null : _capture, child: _busy ? const CircularProgressIndicator() : const Icon(Icons.camera_alt)))),
-      ]),
+        ],
+      ),
     );
   }
 }
@@ -335,84 +421,81 @@ class _CaptureStatusView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(28),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 440),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (isSuccess)
-                    TweenAnimationBuilder<double>(
-                      tween: Tween(begin: 0.35, end: 1),
-                      duration: const Duration(milliseconds: 560),
-                      curve: Curves.elasticOut,
-                      builder: (context, scale, child) => Transform.scale(
-                        scale: scale,
-                        child: child,
-                      ),
-                      child: Icon(icon, size: 94, color: AppColors.olive),
-                    )
-                  else
-                    Icon(
-                      icon,
-                      size: 68,
-                      color: showProgress ? AppColors.ochre : AppColors.danger,
-                    ),
-                  const SizedBox(height: 26),
-                  Text(
-                    title,
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.w800,
-                        ),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(detail, textAlign: TextAlign.center),
-                  if (showProgress) ...[
-                    const SizedBox(height: 30),
-                    const ClipRRect(
-                      borderRadius: BorderRadius.all(Radius.circular(6)),
-                      child: LinearProgressIndicator(minHeight: 7),
-                    ),
-                    const SizedBox(height: 12),
-                    const Text('This may take a moment.'),
-                  ],
-                  if (actionLabel != null) ...[
-                    const SizedBox(height: 30),
-                    SizedBox(
-                      width: double.infinity,
-                      child: FilledButton.icon(
-                        onPressed: onAction,
-                        icon: Icon(isSuccess ? Icons.flag_outlined : Icons.refresh),
-                        label: Text(actionLabel!),
-                        style: FilledButton.styleFrom(
-                          minimumSize: const Size.fromHeight(54),
-                        ),
-                      ),
-                    ),
-                  ],
-                  if (secondaryActionLabel != null) ...[
-                    const SizedBox(height: 12),
-                    SizedBox(
-                      width: double.infinity,
-                      child: OutlinedButton.icon(
-                        onPressed: onSecondaryAction,
-                        icon: const Icon(Icons.arrow_back),
-                        label: Text(secondaryActionLabel!),
-                        style: OutlinedButton.styleFrom(
-                          minimumSize: const Size.fromHeight(54),
-                        ),
-                      ),
-                    ),
-                  ],
-                ],
+    child: Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(28),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 440),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (isSuccess)
+                TweenAnimationBuilder<double>(
+                  tween: Tween(begin: 0.35, end: 1),
+                  duration: const Duration(milliseconds: 560),
+                  curve: Curves.elasticOut,
+                  builder: (context, scale, child) =>
+                      Transform.scale(scale: scale, child: child),
+                  child: Icon(icon, size: 94, color: AppColors.olive),
+                )
+              else
+                Icon(
+                  icon,
+                  size: 68,
+                  color: showProgress ? AppColors.ochre : AppColors.danger,
+                ),
+              const SizedBox(height: 26),
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.headlineSmall
+                    ?.copyWith(fontWeight: FontWeight.w800),
               ),
-            ),
+              const SizedBox(height: 12),
+              Text(detail, textAlign: TextAlign.center),
+              if (showProgress) ...[
+                const SizedBox(height: 30),
+                const ClipRRect(
+                  borderRadius: BorderRadius.all(Radius.circular(6)),
+                  child: LinearProgressIndicator(minHeight: 7),
+                ),
+                const SizedBox(height: 12),
+                const Text('This may take a moment.'),
+              ],
+              if (actionLabel != null) ...[
+                const SizedBox(height: 30),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.icon(
+                    onPressed: onAction,
+                    icon: Icon(isSuccess ? Icons.flag_outlined : Icons.refresh),
+                    label: Text(actionLabel!),
+                    style: FilledButton.styleFrom(
+                      minimumSize: const Size.fromHeight(54),
+                    ),
+                  ),
+                ),
+              ],
+              if (secondaryActionLabel != null) ...[
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: onSecondaryAction,
+                    icon: const Icon(Icons.arrow_back),
+                    label: Text(secondaryActionLabel!),
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size.fromHeight(54),
+                    ),
+                  ),
+                ),
+              ],
+            ],
           ),
         ),
-      );
+      ),
+    ),
+  );
 }
 
 class _UserFacingError implements Exception {

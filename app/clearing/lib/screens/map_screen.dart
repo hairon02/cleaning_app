@@ -13,8 +13,8 @@ import '../utils/cells.dart';
 import '../widgets/discovery_map.dart';
 
 class MapScreen extends StatefulWidget {
-  const MapScreen({super.key, this.onBackToCamera, this.onOpenJournal});
-  final VoidCallback? onBackToCamera;
+  const MapScreen({super.key, this.onBackToChallenges, this.onOpenJournal});
+  final VoidCallback? onBackToChallenges;
   final VoidCallback? onOpenJournal;
   @override
   State<MapScreen> createState() => _MapScreenState();
@@ -115,8 +115,6 @@ class _MapScreenState extends State<MapScreen> {
       final result = await _api.fetchMap(userId, apiBboxString(bounds));
       if (!mounted || version != _requestVersion) return;
       setState(() {
-        // Demo photos make the map pins visible in development even before
-        // this user has uploaded verified photos.
         _photos = result.photos;
         _totalCleared = result.totalCleared;
         _loadingPhotos = false;
@@ -180,8 +178,8 @@ class _MapScreenState extends State<MapScreen> {
             children: [
               _button(
                 Icons.arrow_back,
-                'Back to camera',
-                widget.onBackToCamera ?? () => Navigator.maybePop(context),
+                'Back to Challenges',
+                widget.onBackToChallenges ?? () => Navigator.maybePop(context),
               ),
               const SizedBox(width: 10),
               Expanded(

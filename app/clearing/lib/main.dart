@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
+
 import 'screens/camera_screen.dart';
 import 'screens/challenges_screen.dart';
 import 'screens/map_screen.dart';
+import 'screens/journal_screen.dart';
 import 'screens/onboarding_screen.dart';
 import 'screens/registration_screen.dart';
 import 'services/api_service.dart';
@@ -20,9 +22,7 @@ Future<void> main() async {
       environment[entry.key.substring(1)] = entry.value;
     }
   }
-  MapboxOptions.setAccessToken(
-    dotenv.env['MAPBOX_ACCESS_TOKEN']?.trim() ?? '',
-  );
+  MapboxOptions.setAccessToken(dotenv.env['MAPBOX_ACCESS_TOKEN']?.trim() ?? '');
   runApp(const MainApp());
 }
 
@@ -93,9 +93,7 @@ class _LaunchGateState extends State<_LaunchGate> {
   @override
   Widget build(BuildContext context) {
     if (_loading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     if (_syncError != null) {
       return Scaffold(
@@ -146,6 +144,7 @@ class _AppShellState extends State<AppShell> {
   ActiveChallenge? _selectedChallenge;
   bool _cameraFlowActive = false;
   bool _cameraRequested = false;
+  bool _journalVisited = false;
 
   @override
   Widget build(BuildContext context) {
@@ -189,32 +188,34 @@ class _AppShellState extends State<AppShell> {
         userName: widget.profile.name,
       ),
       MapScreen(
-        onBackToCamera: () => setState(() {
-          _cameraRequested = true;
-          _selectedIndex = 0;
+        onBackToChallenges: () => setState(() {
+          _cameraRequested = false;
+          _cameraFlowActive = false;
+          _selectedChallenge = null;
+          _selectedIndex = 1;
         }),
-        onOpenJournal: () => setState(() => _selectedIndex = 3),
+        onOpenJournal: () => setState(() {
+          _journalVisited = true;
+          _selectedIndex = 3;
+        }),
       ),
-      const _PlaceholderScreen(title: 'Journal'),
+      _journalVisited ? const JournalScreen() : const SizedBox.shrink(),
     ];
     return Scaffold(
       body: IndexedStack(index: _selectedIndex, children: screens),
-      bottomNavigationBar: _selectedIndex == 0 || _cameraFlowActive ? null : BottomNav(
-        selectedIndex: _selectedIndex - 1,
-        onSelected: (index) {
-          final screenIndex = index + 1;
-          setState(() => _selectedIndex = screenIndex);
-          if (screenIndex == 1) _challengesKey.currentState?.refresh();
-        },
-      ),
+      bottomNavigationBar: _selectedIndex == 0 || _cameraFlowActive
+          ? null
+          : BottomNav(
+              selectedIndex: _selectedIndex - 1,
+              onSelected: (index) {
+                final screenIndex = index + 1;
+                setState(() {
+                  _selectedIndex = screenIndex;
+                  if (screenIndex == 3) _journalVisited = true;
+                });
+                if (screenIndex == 1) _challengesKey.currentState?.refresh();
+              },
+            ),
     );
   }
-}
-
-class _PlaceholderScreen extends StatelessWidget {
-  const _PlaceholderScreen({required this.title});
-  final String title;
-
-  @override
-  Widget build(BuildContext context) => Center(child: Text(title));
 }

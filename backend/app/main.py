@@ -7,6 +7,7 @@ from app.config import UPLOAD_DIR
 from app.db import init_db
 from app.routes.challenges import router as challenges_router
 from app.routes.map import router as map_router
+from app.routes.journal import router as journal_router
 from app.routes.ranking import router as ranking_router
 from app.routes.upload import router as upload_router
 from app.routes.users import router as users_router
@@ -39,6 +40,7 @@ app.add_middleware(
 
 app.include_router(upload_router, prefix="/api")
 app.include_router(map_router, prefix="/api")
+app.include_router(journal_router, prefix="/api")
 app.include_router(ranking_router, prefix="/api")
 app.include_router(challenges_router, prefix="/api")
 app.include_router(users_router, prefix="/api")

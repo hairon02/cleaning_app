@@ -13,27 +13,6 @@ from app.db import get_db
 
 router = APIRouter()
 MAX_BBOX_DEGREES = 50_000 / 111_320
-DEMO_PHOTOS = (
-    {
-        "id": "demo-test1",
-        "lat": 19.0414,
-        "lon": -98.2063,
-        "image_url": "/api/map/demo-photos/test1.jpg",
-    },
-    {
-        "id": "demo-test2",
-        "lat": 19.0281,
-        "lon": -98.2108,
-        "image_url": "/api/map/demo-photos/test2.jpg",
-    },
-    {
-        "id": "demo-test3",
-        "lat": 19.0522,
-        "lon": -98.1937,
-        "image_url": "/api/map/demo-photos/test3.jpg",
-    },
-)
-DEMO_PHOTO_DIR = Path(__file__).resolve().parents[2] / "eval" / "photos"
 
 
 def _parse_bbox(raw_bbox: str) -> tuple[float, float, float, float]:
@@ -89,10 +68,6 @@ async def get_map(
                 "demo": False,
             }
         )
-    photos.extend(
-        {**photo, "demo": True}
-        for photo in DEMO_PHOTOS
-    )
     return {"cleared": cleared, "total_cleared": total, "photos": photos}
 
 
@@ -126,8 +101,3 @@ async def get_photo_thumbnail(
     return _thumbnail(Path(row["path"]))
 
 
-@router.get("/map/demo-photos/{filename}")
-async def get_demo_photo_thumbnail(filename: str) -> Response:
-    if filename not in {"test1.jpg", "test2.jpg", "test3.jpg"}:
-        raise HTTPException(status_code=404, detail="demo photo not found")
-    return _thumbnail(DEMO_PHOTO_DIR / filename)

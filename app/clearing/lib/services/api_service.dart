@@ -127,6 +127,52 @@ class MapPhoto {
       );
 }
 
+class JournalEntry {
+  const JournalEntry({
+    required this.id,
+    required this.photoUrl,
+    required this.thumbnailUrl,
+    required this.description,
+    required this.tags,
+    required this.takenAt,
+  });
+
+  final String id;
+  final String photoUrl;
+  final String thumbnailUrl;
+  final String description;
+  final List<String> tags;
+  final DateTime takenAt;
+
+  factory JournalEntry.fromJson(Map<String, dynamic> json, String baseUrl) =>
+      JournalEntry(
+        id: json['photo_id'] as String,
+        photoUrl: Uri.parse(baseUrl)
+            .resolve(json['photo_url'] as String)
+            .toString(),
+        thumbnailUrl: Uri.parse(baseUrl)
+            .resolve(json['thumbnail_url'] as String)
+            .toString(),
+        description: json['description'] as String? ?? 'A moment outdoors.',
+        tags: List<String>.from(json['tags'] as List? ?? const []),
+        takenAt: DateTime.parse(json['taken_at'] as String).toLocal(),
+      );
+}
+
+class JournalPage {
+  const JournalPage({
+    required this.entries,
+    required this.page,
+    required this.total,
+    required this.hasMore,
+  });
+
+  final List<JournalEntry> entries;
+  final int page;
+  final int total;
+  final bool hasMore;
+}
+
 class ApiService {
   ApiService({http.Client? client}) : _client = client ?? http.Client();
   final http.Client _client;
@@ -159,9 +205,9 @@ class ApiService {
     XFile file,
     double lat,
     double lon,
-    DateTime takenAt,
-    {String? challengeId}
-  ) async {
+    DateTime takenAt, {
+    String? challengeId,
+  }) async {
     final request =
         http.MultipartRequest('POST', Uri.parse('$baseUrl/api/upload'))
           ..fields['lat'] = lat.toString()
@@ -179,7 +225,10 @@ class ApiService {
     request.headers['ngrok-skip-browser-warning'] = 'true';
     final streamed = await _client
         .send(request)
-        .timeout(const Duration(seconds: 30));
+        // Gemma can spend up to 120 seconds per attempt on the backend.
+        // Leave room for its configured retries so the client does not report
+        // a false failure after the server has already completed the challenge.
+        .timeout(const Duration(seconds: 420));
     final response = await http.Response.fromStream(streamed);
     if (response.statusCode < 200 || response.statusCode >= 300) {
       throw Exception('Upload failed (${response.statusCode})');
@@ -255,6 +304,30 @@ class ApiService {
     }
     return MapResult.fromJson(
       jsonDecode(response.body) as Map<String, dynamic>,
+    );
+  }
+
+  Future<JournalPage> fetchJournal(int page) async {
+    final id = await _userId();
+    final uri = Uri.parse('$baseUrl/api/journal')
+        .replace(queryParameters: {'user_id': id, 'page': page.toString()});
+    final response = await _client
+        .get(uri, headers: const {'ngrok-skip-browser-warning': 'true'})
+        .timeout(const Duration(seconds: 15));
+    if (response.statusCode != 200) {
+      throw Exception('Journal request failed (${response.statusCode})');
+    }
+    final json = jsonDecode(response.body) as Map<String, dynamic>;
+    return JournalPage(
+      entries: (json['entries'] as List? ?? const [])
+          .map(
+            (entry) =>
+                JournalEntry.fromJson(entry as Map<String, dynamic>, baseUrl),
+          )
+          .toList(),
+      page: (json['page'] as num?)?.toInt() ?? page,
+      total: (json['total'] as num?)?.toInt() ?? 0,
+      hasMore: json['has_more'] as bool? ?? false,
     );
   }
 

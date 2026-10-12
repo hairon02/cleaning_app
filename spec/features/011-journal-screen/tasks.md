@@ -2,28 +2,27 @@
 
 ## Backend
 
-- [ ] Crear `backend/app/routes/journal.py` con `GET /journal?user_id=X&page=N`.
-- [ ] Devolver lista de `JournalEntry`: `photo_id`, `photo_url`, `description`, `tags`, `taken_at`.
-- [ ] `photo_url` es la ruta relativa al servidor estático (`/uploads/{user_id}/{filename}`).
-- [ ] Asegurarse de que `StaticFiles` está montado en `main.py` para servir `uploads/`.
-- [ ] Registrar la ruta del journal en `main.py`.
+- [x] Crear `backend/app/routes/journal.py` con `GET /journal?user_id=X&page=N` (páginas desde 0, 20 entradas).
+- [x] Devolver `photo_id`, URLs protegidas para foto y thumbnail, descripción, etiquetas y fecha/hora.
+- [x] Servir original y thumbnail solo si el `user_id` coincide y la foto está verificada; no publicar el directorio `uploads/` como archivos estáticos.
+- [x] Registrar la ruta del journal en `main.py`.
 
 ## Flutter — pantalla del diario
 
-- [ ] Crear `lib/screens/journal_screen.dart`.
-- [ ] Implementar `ListView.builder` con carga de la primera página al entrar.
-- [ ] Implementar scroll infinito: al llegar al final de la lista, llamar `GET /journal?page=N+1`.
-- [ ] Cada entrada: `CachedNetworkImage` como thumbnail (cuadrado, 80×80), descripción truncada a 2 líneas, chips de tags, fecha formateada.
-- [ ] Al pulsar una entrada → `Navigator.push` a `lib/screens/journal_detail_screen.dart`.
-- [ ] `journal_detail_screen.dart`: foto a pantalla completa con `InteractiveViewer` + `Hero`, descripción completa y tags debajo.
-- [ ] Estado vacío: ilustración + texto motivador si `page=0` y la lista está vacía.
-- [ ] Añadir la pantalla al `IndexedStack` del `BottomNavigationBar`.
+- [x] Crear `lib/screens/journal_screen.dart` y cargar su primera página al entrar al diario.
+- [x] Implementar `ListView.builder` con carga de 20 entradas y paginación al acercarse al final.
+- [x] Mostrar thumbnail `CachedNetworkImage` (84×84), descripción truncada, etiquetas y fecha/hora local.
+- [x] Al pulsar una entrada, abrir `journal_detail_screen.dart` mediante `Navigator.push`.
+- [x] Mostrar la foto original con `InteractiveViewer` + `Hero`, descripción y etiquetas en detalle.
+- [x] Mostrar estado vacío motivador cuando el usuario no tiene fotos verificadas.
+- [x] Añadir el diario al `IndexedStack` y habilitarlo en el menú.
+- [x] Mostrar estados de error y reintento tanto al cargar la primera página como páginas siguientes.
 
 ## Verificación
 
 - [ ] Subir 3+ fotos verificadas → aparecen en el diario ordenadas por fecha.
 - [ ] Pulsar una foto → se abre la vista de detalle con descripción completa.
 - [ ] Las coordenadas no aparecen en ningún lugar de la UI.
-- [ ] Usar ui-ux-pro-max antes de implementar las pantallas frontend.
-- [ ] Usar Impeccable después de implementar para auditar y pulir las pantallas.
-- [ ] Registrar y resolver los hallazgos de ambas skills.
+- [x] Usar ui-ux-pro-max antes de implementar las pantallas frontend; registrar las búsquedas y dirección en `plan.md`.
+- [x] Revisar la implementación con criterios Impeccable para Flutter nativo y registrar sus límites en `plan.md`.
+- [x] Resolver hallazgos fuente: evitar lista anidada, bloquear solicitudes de página solapadas, añadir loading/error/empty, keys estables, safe areas vía `Scaffold` y navegación de detalle con back nativo.
