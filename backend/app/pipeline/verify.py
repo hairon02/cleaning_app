@@ -4,10 +4,10 @@ import json
 import logging
 import re
 from pathlib import Path
-from typing import Callable, Optional
+from typing import Callable, Optional, Sequence
 
 import httpx
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, StrictBool
 
 from app.config import (
     BASE_DIR,
@@ -27,12 +27,25 @@ class GemmaError(Exception):
     pass
 
 
+class ChallengeCriterion(BaseModel):
+    challenge_id: str
+    title: str
+    visual_criterion: str
+
+
+class ChallengeCheckResult(BaseModel):
+    challenge_id: str
+    meets_criterion: StrictBool
+    reason: str = ""
+
+
 class GemmaResult(BaseModel):
     is_outdoor: bool
     description: str
     tags: list[str] = Field(default_factory=list)
     time_of_day: str = "unknown"
     weather: str = "unknown"
+    challenge_results: list[ChallengeCheckResult] = Field(default_factory=list)
 
 
 def _load_prompt_template() -> str:
@@ -46,6 +59,46 @@ def _load_prompt_template() -> str:
 
 # Loaded once at import time
 PROMPT_TEMPLATE = _load_prompt_template()
+CHALLENGE_PROMPT_FILE = BASE_DIR / "prompts" / "challenge_check.txt"
+
+
+def _build_prompt(challenge_criteria: Sequence[ChallengeCriterion] | None) -> str:
+    if not challenge_criteria:
+        return PROMPT_TEMPLATE
+    if not CHALLENGE_PROMPT_FILE.exists():
+        logger.warning("Challenge prompt is missing; verifying photo without challenge criteria")
+        return PROMPT_TEMPLATE
+    challenge_data = [criterion.model_dump() for criterion in challenge_criteria]
+    return (
+        f"{PROMPT_TEMPLATE}\n\n"
+        f"{CHALLENGE_PROMPT_FILE.read_text(encoding='utf-8').format(challenges_json=json.dumps(challenge_data))}"
+    )
+
+
+def _parse_challenge_results(
+    raw_results: object,
+    expected_ids: set[str],
+) -> list[ChallengeCheckResult]:
+    if not isinstance(raw_results, list):
+        if expected_ids:
+            logger.warning(
+                "Gemma returned invalid challenge_results; skipping challenge scoring"
+            )
+        return []
+
+    results: list[ChallengeCheckResult] = []
+    seen: set[str] = set()
+    for raw_result in raw_results:
+        try:
+            result = ChallengeCheckResult.model_validate(raw_result)
+        except Exception as exc:
+            logger.warning("Skipping invalid challenge result: %s", exc)
+            continue
+        if result.challenge_id not in expected_ids or result.challenge_id in seen:
+            continue
+        results.append(result)
+        seen.add(result.challenge_id)
+    return results
 
 
 def _clean_json_output(raw_text: str) -> str:
@@ -128,6 +181,8 @@ def verify_photo(
     image_path: str,
     backend_caller: Optional[Callable[[str, str], str]] = None,
     max_retries: int = GEMMA_MAX_RETRIES,
+    *,
+    challenge_criteria: Sequence[ChallengeCriterion] | None = None,
 ) -> GemmaResult:
     """Verify photo with Gemma and return structured GemmaResult.
 
@@ -147,7 +202,11 @@ def verify_photo(
                 return _call_ollama(img, pr)
         backend_caller = default_caller
 
-    current_prompt = PROMPT_TEMPLATE
+    base_prompt = _build_prompt(challenge_criteria)
+    current_prompt = base_prompt
+    expected_challenge_ids = {
+        criterion.challenge_id for criterion in challenge_criteria or ()
+    }
     last_error: Optional[Exception] = None
 
     for attempt in range(max_retries + 1):
@@ -155,8 +214,15 @@ def verify_photo(
             raw_response = backend_caller(str(path), current_prompt)
             clean_json = _clean_json_output(raw_response)
             data = json.loads(clean_json)
+            if not isinstance(data, dict):
+                raise ValueError("Gemma response must be a JSON object")
+            raw_challenge_results = data.pop("challenge_results", [])
             result = GemmaResult.model_validate(data)
-            return result
+            challenge_results = _parse_challenge_results(
+                raw_challenge_results,
+                expected_challenge_ids,
+            )
+            return result.model_copy(update={"challenge_results": challenge_results})
         except Exception as exc:
             last_error = exc
             logger.warning(
@@ -168,7 +234,7 @@ def verify_photo(
             )
             # Enhance prompt on retry with instruction to correct the JSON
             current_prompt = (
-                f"{PROMPT_TEMPLATE}\n\n"
+                f"{base_prompt}\n\n"
                 f"IMPORTANT: Your previous response caused a validation error ({exc}). "
                 f"Make sure to respond ONLY with a valid and well-formed JSON object."
             )

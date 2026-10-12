@@ -14,6 +14,11 @@ from pydantic import BaseModel, Field
 from app.cells import latlon_to_cell, mark_cleared
 from app.config import POINTS_NEW_CELL, POINTS_PHOTO_VERIFIED, UPLOAD_DIR
 from app.db import get_db
+from app.pipeline.challenge_validator import (
+    build_challenge_criteria,
+    get_challenges_to_validate,
+    validate_challenges,
+)
 from app.pipeline.phash import compute_phash, find_duplicate
 from app.pipeline.verify import GemmaError, verify_photo
 from app.scoring import PointReason, _check_and_award_streak, award_points
@@ -131,6 +136,13 @@ async def upload_photo(
     status = "pending_review"
     duplicate_of: Optional[str] = None
     gemma_result = None
+    challenges_completed: list[str] = []
+
+    try:
+        pending_challenges = get_challenges_to_validate(user_id, conn)
+    except sqlite3.Error as exc:
+        logger.warning("Could not load active challenges for photo %s: %s", photo_id, exc)
+        pending_challenges = []
 
     if phash is not None:
         duplicate_of = find_duplicate(user_id, phash, conn)
@@ -142,7 +154,10 @@ async def upload_photo(
         # 4. Call Gemma for verification
         # ------------------------------------------------------------------
         try:
-            gemma_result = verify_photo(str(dest_path))
+            gemma_result = verify_photo(
+                str(dest_path),
+                challenge_criteria=build_challenge_criteria(pending_challenges),
+            )
             if gemma_result.is_outdoor:
                 status = "verified"
             else:
@@ -191,6 +206,15 @@ async def upload_photo(
     if status == "verified":
         is_new_cell = mark_cleared(user_id, cell_id, conn)
         _award_points(user_id, photo_id, conn, is_new_cell=is_new_cell)
+        try:
+            challenges_completed = validate_challenges(
+                user_id,
+                pending_challenges,
+                gemma_result.challenge_results if gemma_result else [],
+                conn,
+            )
+        except Exception:
+            logger.exception("Could not award challenge points for photo %s", photo_id)
 
     # ------------------------------------------------------------------
     # 8. Build response
@@ -200,5 +224,5 @@ async def upload_photo(
         status=status,
         description=gemma_result.description if gemma_result else None,
         tags=gemma_result.tags if gemma_result else None,
-        challenges_completed=[],
+        challenges_completed=challenges_completed,
     )

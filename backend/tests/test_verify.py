@@ -4,7 +4,12 @@ from pathlib import Path
 import pytest
 from PIL import Image
 
-from app.pipeline.verify import GemmaError, GemmaResult, verify_photo
+from app.pipeline.verify import (
+    ChallengeCriterion,
+    GemmaError,
+    GemmaResult,
+    verify_photo,
+)
 
 
 @pytest.fixture
@@ -101,3 +106,68 @@ def test_verify_photo_failure_raises_gemma_error(sample_image: Path):
         )
 
     assert "Failed to verify photo" in str(exc_info.value)
+
+
+def test_verify_photo_includes_challenge_criteria_in_same_prompt(sample_image: Path):
+    prompts = []
+    response = json.dumps(
+        {
+            "is_outdoor": True,
+            "description": "A park with a leaf",
+            "tags": ["park", "leaf", "tree"],
+            "time_of_day": "afternoon",
+            "weather": "sunny",
+            "challenge_results": [
+                {
+                    "challenge_id": "daily-1",
+                    "meets_criterion": True,
+                    "reason": "A leaf is clearly visible.",
+                }
+            ],
+        }
+    )
+
+    result = verify_photo(
+        str(sample_image),
+        backend_caller=lambda _path, prompt: prompts.append(prompt) or response,
+        challenge_criteria=[
+            ChallengeCriterion(
+                challenge_id="daily-1",
+                title="Find a leaf",
+                visual_criterion="A leaf is clearly visible.",
+            )
+        ],
+    )
+
+    assert len(prompts) == 1
+    assert "A leaf is clearly visible." in prompts[0]
+    assert "challenge_results" in prompts[0]
+    assert result.is_outdoor is True
+    assert result.challenge_results[0].challenge_id == "daily-1"
+    assert result.challenge_results[0].meets_criterion is True
+
+
+def test_invalid_challenge_result_does_not_fail_photo_verification(sample_image: Path):
+    response = json.dumps(
+        {
+            "is_outdoor": True,
+            "description": "A park",
+            "tags": ["park", "trees", "grass"],
+            "challenge_results": [{"challenge_id": "daily-1", "meets_criterion": "maybe"}],
+        }
+    )
+
+    result = verify_photo(
+        str(sample_image),
+        backend_caller=lambda _path, _prompt: response,
+        challenge_criteria=[
+            ChallengeCriterion(
+                challenge_id="daily-1",
+                title="Find a leaf",
+                visual_criterion="A leaf is clearly visible.",
+            )
+        ],
+    )
+
+    assert result.is_outdoor is True
+    assert result.challenge_results == []

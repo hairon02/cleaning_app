@@ -29,6 +29,46 @@ class PhotoResult {
   );
 }
 
+class ActiveChallenge {
+  const ActiveChallenge({
+    required this.id,
+    required this.title,
+    required this.description,
+    required this.visualCriterion,
+    required this.period,
+    required this.difficulty,
+    required this.points,
+    required this.completedByUser,
+  });
+
+  final String id;
+  final String title;
+  final String description;
+  final String visualCriterion;
+  final String period;
+  final String difficulty;
+  final int points;
+  final bool completedByUser;
+
+  factory ActiveChallenge.fromJson(Map<String, dynamic> json) =>
+      ActiveChallenge(
+        id: json['id'] as String,
+        title: json['title'] as String,
+        description: json['description'] as String,
+        visualCriterion: json['visual_criterion'] as String,
+        period: json['period'] as String,
+        difficulty: json['difficulty'] as String,
+        points: (json['points'] as num).toInt(),
+        completedByUser: json['completed_by_user'] as bool? ?? false,
+      );
+}
+
+class ChallengesResult {
+  const ChallengesResult({required this.daily, required this.weekly});
+  final ActiveChallenge daily;
+  final ActiveChallenge weekly;
+}
+
 class MapResult {
   const MapResult({required this.photos, required this.totalCleared});
   final List<MapPhoto> photos;
@@ -141,6 +181,26 @@ class ApiService {
 
   Future<String> userId() => _userId();
 
+  Future<ChallengesResult> fetchChallenges() async {
+    final id = await _userId();
+    final uri = Uri.parse('$baseUrl/api/challenges')
+        .replace(queryParameters: {'user_id': id});
+    final response = await _client
+        .get(uri, headers: const {'ngrok-skip-browser-warning': 'true'})
+        .timeout(const Duration(seconds: 10));
+    if (response.statusCode == 503) {
+      throw const NoChallengesException();
+    }
+    if (response.statusCode != 200) {
+      throw Exception('Challenges request failed (${response.statusCode})');
+    }
+    final json = jsonDecode(response.body) as Map<String, dynamic>;
+    return ChallengesResult(
+      daily: ActiveChallenge.fromJson(json['daily'] as Map<String, dynamic>),
+      weekly: ActiveChallenge.fromJson(json['weekly'] as Map<String, dynamic>),
+    );
+  }
+
   Future<MapResult> fetchMap(String userId, String bbox) async {
     final uri = Uri.parse('$baseUrl/api/map')
         .replace(queryParameters: {'user_id': userId, 'bbox': bbox});
@@ -158,4 +218,8 @@ class ApiService {
   @visibleForTesting
   Future<void> clearUserId() async =>
       (await SharedPreferences.getInstance()).remove(_userKey);
+}
+
+class NoChallengesException implements Exception {
+  const NoChallengesException();
 }

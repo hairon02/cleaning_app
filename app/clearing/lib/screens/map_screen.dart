@@ -125,7 +125,7 @@ class _MapScreenState extends State<MapScreen> {
       if (mounted && version == _requestVersion) {
         setState(() {
           _loadingPhotos = false;
-          _error = 'No se pudieron cargar las fotos.';
+          _error = 'The photos could not be loaded.';
         });
       }
     }
@@ -180,7 +180,7 @@ class _MapScreenState extends State<MapScreen> {
             children: [
               _button(
                 Icons.arrow_back,
-                'Volver a la cámara',
+                'Back to camera',
                 widget.onBackToCamera ?? () => Navigator.maybePop(context),
               ),
               const SizedBox(width: 10),
@@ -205,8 +205,8 @@ class _MapScreenState extends State<MapScreen> {
                       Flexible(
                         child: Text(
                           _locationDisabled
-                              ? 'Ubicación desactivada'
-                              : '$_totalCleared lugares descubiertos',
+                              ? 'Location disabled'
+                              : '$_totalCleared places discovered',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: Theme.of(context).textTheme.bodyMedium
@@ -236,13 +236,13 @@ class _MapScreenState extends State<MapScreen> {
             children: [
               _button(
                 Icons.my_location,
-                'Centrar en mi ubicación',
+                'Center on my location',
                 _loadLocation,
               ),
               const SizedBox(height: 10),
               _button(
                 Icons.menu_book_outlined,
-                'Abrir diario',
+                'Open journal',
                 widget.onOpenJournal ?? () {},
               ),
             ],
@@ -261,7 +261,7 @@ class _MapScreenState extends State<MapScreen> {
                 child: Text(
                   _tileError == null
                       ? _error!
-                      : 'Mapbox no pudo cargar el estilo:\n$_tileError',
+                      : 'Mapbox could not load the style:\n$_tileError',
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),

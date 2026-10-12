@@ -11,7 +11,7 @@ from PIL import Image
 import app.routes.upload as upload_module
 from app.db import get_db
 from app.main import app
-from app.pipeline.verify import GemmaResult
+from app.pipeline.verify import ChallengeCheckResult, GemmaResult
 
 # ---------------------------------------------------------------------------
 # Helpers / fixtures
@@ -48,6 +48,16 @@ CREATE TABLE IF NOT EXISTS cells (
     cleared_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (user_id, cell_id),
     FOREIGN KEY(user_id) REFERENCES users(id)
+);
+CREATE TABLE IF NOT EXISTS challenges (
+    id TEXT PRIMARY KEY,
+    title TEXT NOT NULL,
+    description TEXT NOT NULL,
+    visual_criterion TEXT NOT NULL,
+    period TEXT NOT NULL,
+    difficulty TEXT NOT NULL,
+    points INTEGER NOT NULL,
+    reviewed INTEGER NOT NULL DEFAULT 0
 );
 CREATE TABLE IF NOT EXISTS points_ledger (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -136,7 +146,7 @@ def test_upload_verified(tmp_path: Path, client, monkeypatch: pytest.MonkeyPatch
 
     monkeypatch.setattr(
         "app.routes.upload.verify_photo",
-        lambda path: good_result,
+        lambda path, **kwargs: good_result,
     )
 
     award_calls = []
@@ -163,6 +173,70 @@ def test_upload_verified(tmp_path: Path, client, monkeypatch: pytest.MonkeyPatch
     assert len(map_resp.json()["cleared"]) == 1
 
 
+def test_verified_upload_returns_completed_challenge(
+    tmp_path: Path,
+    client,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    img = _make_image(tmp_path, "challenge.jpg")
+    conn = _make_test_db()
+    conn.execute(
+        """
+        INSERT INTO challenges
+            (id, title, description, visual_criterion, period, difficulty, points, reviewed)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        (
+            "daily-challenge",
+            "Find a leaf",
+            "Photograph a leaf in a public park.",
+            "A leaf is clearly visible.",
+            "daily",
+            "easy",
+            15,
+            1,
+        ),
+    )
+    conn.commit()
+    conn.close()
+
+    def _verified_with_challenge(path, *, challenge_criteria):
+        assert len(challenge_criteria) == 1
+        assert challenge_criteria[0].challenge_id == "daily-challenge"
+        return GemmaResult(
+            is_outdoor=True,
+            description="A leaf in a park",
+            tags=["leaf", "park", "tree"],
+            challenge_results=[
+                ChallengeCheckResult(
+                    challenge_id="daily-challenge",
+                    meets_criterion=True,
+                    reason="A leaf is clearly visible.",
+                )
+            ],
+        )
+
+    monkeypatch.setattr("app.routes.upload.verify_photo", _verified_with_challenge)
+
+    response = _upload(client, img)
+
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["status"] == "verified"
+    assert body["challenges_completed"] == ["Find a leaf"]
+
+    conn = _make_test_db()
+    award = conn.execute(
+        """
+        SELECT reason, amount, ref_id FROM points_ledger
+        WHERE user_id = ? AND reason = 'daily_challenge'
+        """,
+        ("user-abc",),
+    ).fetchone()
+    conn.close()
+    assert tuple(award) == ("daily_challenge", 15, "daily-challenge")
+
+
 # ---------------------------------------------------------------------------
 # Test: rejected photo (not outdoor)
 # ---------------------------------------------------------------------------
@@ -181,7 +255,7 @@ def test_upload_rejected(tmp_path: Path, client, monkeypatch: pytest.MonkeyPatch
 
     monkeypatch.setattr(
         "app.routes.upload.verify_photo",
-        lambda path: indoor_result,
+        lambda path, **kwargs: indoor_result,
     )
 
     resp = _upload(client, img)
@@ -207,7 +281,7 @@ def test_upload_duplicate(tmp_path: Path, client, monkeypatch: pytest.MonkeyPatc
 
     monkeypatch.setattr(
         "app.routes.upload.verify_photo",
-        lambda path: good_result,
+        lambda path, **kwargs: good_result,
     )
 
     # First upload — should be verified
@@ -229,7 +303,7 @@ def test_upload_gemma_failure(tmp_path: Path, client, monkeypatch: pytest.Monkey
 
     from app.pipeline.verify import GemmaError
 
-    def _raise(_path):
+    def _raise(_path, **kwargs):
         raise GemmaError("model timeout")
 
     monkeypatch.setattr("app.routes.upload.verify_photo", _raise)
@@ -255,7 +329,7 @@ def test_upload_invalid_lat(tmp_path: Path, client, monkeypatch: pytest.MonkeyPa
     img = _make_image(tmp_path)
     monkeypatch.setattr(
         "app.routes.upload.verify_photo",
-        lambda p: GemmaResult(
+        lambda p, **kwargs: GemmaResult(
             is_outdoor=True, description="x", tags=[], time_of_day="day", weather="clear"
         ),
     )

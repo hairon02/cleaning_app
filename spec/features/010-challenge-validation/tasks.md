@@ -2,29 +2,29 @@
 
 ## Backend — prompts
 
-- [ ] Crear `backend/prompts/challenge_check.txt` con el prompt que recibe `{visual_criterion}` y pide `{"meets_criterion": bool, "reason": str}`.
-- [ ] Testear el prompt manualmente con 3–5 fotos y 2–3 criterios distintos antes de integrar.
+- [x] Crear `backend/prompts/challenge_check.txt` con el fragmento de prompt que recibe criterios e incluye resultados sí/no en la respuesta de verificación.
+- [ ] Confirmar manualmente la respuesta de Gemma con 3–5 fotos; la ejecución local intentada agotó el timeout de Ollama.
 
 ## Backend — módulo de validación
 
-- [ ] Crear `backend/app/pipeline/challenge_validator.py`.
-- [ ] Implementar `validate_challenge(image_path, challenge, user_id, conn) -> bool` que llama a Gemma con el prompt específico y deduplicado.
-- [ ] Implementar `validate_challenges(user_id, photo_id, image_path, conn) -> list[str]` que itera (diario, semanal) y devuelve títulos de los completados.
-- [ ] Capturar excepciones de Gemma silenciosamente (log + return `[]`).
+- [x] Crear `backend/app/pipeline/challenge_validator.py`.
+- [x] Implementar selección de retos pendientes, deduplicada por usuario y reto, y pasar sus criterios a la llamada de verificación existente.
+- [x] Implementar `validate_challenges(user_id, challenges, results, conn) -> list[str]` para puntuar resultados diarios/semanales una sola vez.
+- [x] Aislar resultados de reto inválidos para que no descarten la verificación principal de la foto.
 
 ## Integración con feature 003
 
-- [ ] Llamar a `validate_challenges(...)` en `upload.py` justo después de actualizar celdas y puntos base.
-- [ ] Pasar los resultados a `award_points` para cada reto completado.
-- [ ] Incluir `challenges_completed` en `PhotoUploadResponse` (ya estaba como stub).
+- [x] Llamar a `validate_challenges(...)` en `upload.py` justo después de actualizar celdas y puntos base.
+- [x] Pasar los resultados a `award_points` para cada reto completado.
+- [x] Incluir `challenges_completed` en `PhotoUploadResponse` (ya estaba como stub).
 
 ## Tests
 
-- [ ] `test_challenge_validation.py`: reto cumplido → puntos sumados + título en respuesta.
-- [ ] Test de no repetición: subir la misma foto dos veces → el reto no se puntúa dos veces.
-- [ ] Test de fallo de Gemma en validación: mockear `GemmaError` → upload sigue devolviendo `verified`, `challenges_completed=[]`.
+- [x] `test_challenge_validation.py`: retos cumplidos → puntos diarios/semanales sumados, deduplicación e IDs no esperados ignorados.
+- [x] Test de no repetición: los puntos del mismo reto se otorgan solo una vez.
+- [x] Test de resultado inválido/vacío de reto: conserva la verificación de la foto y no suma puntos de reto.
 
 ## Verificación
 
-- [ ] Subir una foto que cumpla el criterio del reto diario activo → `challenges_completed` contiene el título del reto.
-- [ ] `pytest tests/test_challenge_validation.py` sin errores.
+- [x] Subir una foto verificada que cumpla el criterio diario → `challenges_completed` contiene el título y el ledger suma los puntos.
+- [x] `pytest tests/test_challenge_validation.py` sin errores.

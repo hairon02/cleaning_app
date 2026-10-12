@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'screens/camera_screen.dart';
+import 'screens/challenges_screen.dart';
 import 'screens/map_screen.dart';
 import 'theme/app_theme.dart';
 import 'widgets/bottom_nav.dart';
@@ -44,6 +45,7 @@ class AppShell extends StatefulWidget {
 
 class _AppShellState extends State<AppShell> {
   int _selectedIndex = 0;
+  final _challengesKey = GlobalKey<ChallengesScreenState>();
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +55,10 @@ class _AppShellState extends State<AppShell> {
         onBackToCamera: () => setState(() => _selectedIndex = 0),
         onOpenJournal: () => setState(() => _selectedIndex = 4),
       ),
-      const _PlaceholderScreen(title: 'Challenges'),
+      ChallengesScreen(
+        key: _challengesKey,
+        onTakePhoto: () => setState(() => _selectedIndex = 0),
+      ),
       const _PlaceholderScreen(title: 'Ranking'),
       const _PlaceholderScreen(title: 'Journal'),
     ];
@@ -61,7 +66,10 @@ class _AppShellState extends State<AppShell> {
       body: IndexedStack(index: _selectedIndex, children: screens),
       bottomNavigationBar: _selectedIndex == 1 ? null : BottomNav(
         selectedIndex: _selectedIndex,
-        onSelected: (index) => setState(() => _selectedIndex = index),
+        onSelected: (index) {
+          setState(() => _selectedIndex = index);
+          if (index == 2) _challengesKey.currentState?.refresh();
+        },
       ),
     );
   }
