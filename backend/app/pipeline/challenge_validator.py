@@ -39,6 +39,21 @@ def get_challenges_to_validate(
     return pending
 
 
+def get_challenge_to_validate(
+    user_id: str,
+    challenge_id: str | None,
+    conn: sqlite3.Connection,
+) -> list[Challenge]:
+    """Return only the requested challenge when it is active and incomplete."""
+    if not challenge_id:
+        return []
+    return [
+        challenge
+        for challenge in get_challenges_to_validate(user_id, conn)
+        if challenge.id == challenge_id
+    ]
+
+
 def build_challenge_criteria(challenges: Sequence[Challenge]) -> list[ChallengeCriterion]:
     """Convert database challenges into the minimal data passed to Gemma."""
     return [

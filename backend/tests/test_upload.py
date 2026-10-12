@@ -112,7 +112,12 @@ def client(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     master_conn.close()
 
 
-def _upload(client, img_path: Path, user_id: str = "user-abc", override_caller=None):
+def _upload(
+    client,
+    img_path: Path,
+    user_id: str = "user-abc",
+    challenge_id: str | None = None,
+):
     """POST /api/upload helper. Patches verify_photo if override_caller given."""
     with open(img_path, "rb") as f:
         data = {
@@ -121,6 +126,8 @@ def _upload(client, img_path: Path, user_id: str = "user-abc", override_caller=N
             "taken_at": "2026-10-07T10:00:00",
             "user_id": user_id,
         }
+        if challenge_id is not None:
+            data["challenge_id"] = challenge_id
         return client.post(
             "/api/upload",
             files={"file": ("photo.jpg", f, "image/jpeg")},
@@ -218,7 +225,7 @@ def test_verified_upload_returns_completed_challenge(
 
     monkeypatch.setattr("app.routes.upload.verify_photo", _verified_with_challenge)
 
-    response = _upload(client, img)
+    response = _upload(client, img, challenge_id="daily-challenge")
 
     assert response.status_code == 200, response.text
     body = response.json()
@@ -235,6 +242,66 @@ def test_verified_upload_returns_completed_challenge(
     ).fetchone()
     conn.close()
     assert tuple(award) == ("daily_challenge", 15, "daily-challenge")
+
+
+def test_upload_without_challenge_does_not_evaluate_active_challenges(
+    tmp_path: Path,
+    client,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    img = _make_image(tmp_path, "no-challenge.jpg")
+    conn = _make_test_db()
+    conn.execute(
+        """
+        INSERT INTO challenges
+            (id, title, description, visual_criterion, period, difficulty, points, reviewed)
+        VALUES ('active-challenge', 'Find a leaf', 'Find a leaf outside.',
+                'A leaf is visible.', 'daily', 'easy', 15, 1)
+        """
+    )
+    conn.commit()
+    conn.close()
+
+    def _verified_without_challenge(path, *, challenge_criteria):
+        assert challenge_criteria == []
+        return GemmaResult(is_outdoor=True, description="Park", tags=["park"])
+
+    monkeypatch.setattr("app.routes.upload.verify_photo", _verified_without_challenge)
+    response = _upload(client, img)
+
+    assert response.status_code == 200, response.text
+    assert response.json()["status"] == "verified"
+    assert response.json()["challenges_completed"] == []
+
+
+def test_upload_ignores_unknown_challenge_ids(
+    tmp_path: Path,
+    client,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    img = _make_image(tmp_path, "inactive-challenge.jpg")
+    conn = _make_test_db()
+    conn.execute(
+        """
+        INSERT INTO challenges
+            (id, title, description, visual_criterion, period, difficulty, points, reviewed)
+        VALUES ('inactive-challenge', 'Find a leaf', 'Find a leaf outside.',
+                'A leaf is visible.', 'weekly', 'easy', 15, 1)
+        """
+    )
+    conn.commit()
+    conn.close()
+
+    def _verified_without_challenge(path, *, challenge_criteria):
+        assert challenge_criteria == []
+        return GemmaResult(is_outdoor=True, description="Park", tags=["park"])
+
+    monkeypatch.setattr("app.routes.upload.verify_photo", _verified_without_challenge)
+    response = _upload(client, img, challenge_id="unknown-challenge")
+
+    assert response.status_code == 200, response.text
+    assert response.json()["status"] == "verified"
+    assert response.json()["challenges_completed"] == []
 
 
 # ---------------------------------------------------------------------------

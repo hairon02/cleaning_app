@@ -18,6 +18,8 @@
 
 ## MVP — En orden de construcción 🔜
 
+13. **013 · Server-side User Registration** — El perfil con nombre se registra en el backend antes de entrar a la app; fotos, celdas y puntos posteriores quedan ligados al mismo ID.
+
 ### Infraestructura base
 
 
@@ -35,7 +37,7 @@ La pantalla de mapa 007 está completada y figura en «Hecho». El sistema de ce
 
 ### App móvil (Flutter PWA)
 
-11. **011 · Journal, Ranking & Challenges Screens** — Diario cronológico de fotos verificadas con su descripción y etiquetas (solo lectura), ranking de puntos sin ubicaciones y retos activos (diario y semanal) con su estado de cumplimiento.
+11. **011 · Journal & Challenges Screens** — Diario cronológico de fotos verificadas con su descripción y etiquetas (solo lectura) y retos activos (diario y semanal) con su estado de cumplimiento.
 
 12. **012 · PWA Install Check** — Verificación final de que la app se instala y funciona como PWA en Safari. El túnel y el acceso desde el iPhone ya se resolvieron en el 002.
 

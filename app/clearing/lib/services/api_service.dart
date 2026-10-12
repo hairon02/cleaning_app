@@ -7,6 +7,13 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+class LocalProfile {
+  const LocalProfile({required this.userId, required this.name});
+
+  final String userId;
+  final String name;
+}
+
 class PhotoResult {
   const PhotoResult({
     required this.status,
@@ -124,6 +131,7 @@ class ApiService {
   ApiService({http.Client? client}) : _client = client ?? http.Client();
   final http.Client _client;
   static const _userKey = 'guest_user_id';
+  static const _nameKey = 'profile_name';
 
   static String get baseUrl =>
       dotenv.env['API_BASE_URL'] ??
@@ -152,6 +160,7 @@ class ApiService {
     double lat,
     double lon,
     DateTime takenAt,
+    {String? challengeId}
   ) async {
     final request =
         http.MultipartRequest('POST', Uri.parse('$baseUrl/api/upload'))
@@ -166,6 +175,7 @@ class ApiService {
               filename: file.name,
             ),
           );
+    if (challengeId != null) request.fields['challenge_id'] = challengeId;
     request.headers['ngrok-skip-browser-warning'] = 'true';
     final streamed = await _client
         .send(request)
@@ -180,6 +190,39 @@ class ApiService {
   }
 
   Future<String> userId() => _userId();
+
+  Future<LocalProfile?> loadProfile() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString(_userKey);
+    final name = prefs.getString(_nameKey);
+    if (userId == null || name == null || name.trim().isEmpty) return null;
+    return LocalProfile(userId: userId, name: name);
+  }
+
+  Future<LocalProfile> saveProfile(String name) async {
+    final prefs = await SharedPreferences.getInstance();
+    final userId = await _userId();
+    final normalizedName = name.trim();
+    await registerUser(userId, normalizedName);
+    await prefs.setString(_nameKey, normalizedName);
+    return LocalProfile(userId: userId, name: normalizedName);
+  }
+
+  Future<void> registerUser(String userId, String displayName) async {
+    final response = await _client
+        .post(
+          Uri.parse('$baseUrl/api/users'),
+          headers: const {
+            'content-type': 'application/json',
+            'ngrok-skip-browser-warning': 'true',
+          },
+          body: jsonEncode({'id': userId, 'display_name': displayName}),
+        )
+        .timeout(const Duration(seconds: 10));
+    if (response.statusCode != 200) {
+      throw Exception('Registration failed (${response.statusCode})');
+    }
+  }
 
   Future<ChallengesResult> fetchChallenges() async {
     final id = await _userId();

@@ -9,6 +9,7 @@ from app.routes.challenges import router as challenges_router
 from app.routes.map import router as map_router
 from app.routes.ranking import router as ranking_router
 from app.routes.upload import router as upload_router
+from app.routes.users import router as users_router
 
 
 @asynccontextmanager
@@ -40,6 +41,7 @@ app.include_router(upload_router, prefix="/api")
 app.include_router(map_router, prefix="/api")
 app.include_router(ranking_router, prefix="/api")
 app.include_router(challenges_router, prefix="/api")
+app.include_router(users_router, prefix="/api")
 
 
 @app.get("/health")

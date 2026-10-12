@@ -4,9 +4,20 @@ import '../services/api_service.dart';
 import '../theme/app_theme.dart';
 
 class ChallengesScreen extends StatefulWidget {
-  const ChallengesScreen({super.key, required this.onTakePhoto});
+  const ChallengesScreen({
+    super.key,
+    required this.onTakePhoto,
+    this.onTakeChallengePhoto,
+    this.showWelcomeGuide = false,
+    this.onWelcomeGuideDismissed,
+    this.userName = '',
+  });
 
   final VoidCallback onTakePhoto;
+  final ValueChanged<ActiveChallenge>? onTakeChallengePhoto;
+  final bool showWelcomeGuide;
+  final VoidCallback? onWelcomeGuideDismissed;
+  final String userName;
 
   @override
   State<ChallengesScreen> createState() => ChallengesScreenState();
@@ -78,6 +89,13 @@ class ChallengesScreenState extends State<ChallengesScreen> {
                           'Explore and earn points with each challenge.',
                           textAlign: TextAlign.center,
                         ),
+                        if (widget.showWelcomeGuide) ...[
+                          const SizedBox(height: 16),
+                          _ChallengeWelcomeGuide(
+                            userName: widget.userName,
+                            onDismiss: widget.onWelcomeGuideDismissed,
+                          ),
+                        ],
                         const SizedBox(height: 18),
                         Center(
                           child: Row(
@@ -140,7 +158,12 @@ class ChallengesScreenState extends State<ChallengesScreen> {
             challenge: challenge,
             onTakePhoto: () {
               Navigator.of(context).pop();
-              widget.onTakePhoto();
+              final onTakeChallengePhoto = widget.onTakeChallengePhoto;
+              if (onTakeChallengePhoto != null) {
+                onTakeChallengePhoto(challenge);
+              } else {
+                widget.onTakePhoto();
+              }
             },
           ),
         ),
@@ -148,6 +171,97 @@ class ChallengesScreenState extends State<ChallengesScreen> {
 }
 
 enum _ChallengeFilter { active, completed }
+
+class _ChallengeWelcomeGuide extends StatefulWidget {
+  const _ChallengeWelcomeGuide({
+    required this.userName,
+    required this.onDismiss,
+  });
+
+  final String userName;
+  final VoidCallback? onDismiss;
+
+  @override
+  State<_ChallengeWelcomeGuide> createState() => _ChallengeWelcomeGuideState();
+}
+
+class _ChallengeWelcomeGuideState extends State<_ChallengeWelcomeGuide>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 650),
+  )..forward();
+  late final Animation<double> _opacity = CurvedAnimation(
+    parent: _controller,
+    curve: Curves.easeOut,
+  );
+  late final Animation<Offset> _offset = Tween<Offset>(
+    begin: const Offset(0, 0.12),
+    end: Offset.zero,
+  ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => FadeTransition(
+        opacity: _opacity,
+        child: SlideTransition(
+          position: _offset,
+          child: Container(
+            padding: const EdgeInsets.all(18),
+            decoration: BoxDecoration(
+              color: AppColors.forest,
+              borderRadius: BorderRadius.circular(18),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(Icons.explore, color: AppColors.terracotta),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        widget.userName.isEmpty
+                            ? 'Your first Clearing challenges'
+                            : 'You’re ready, ${widget.userName}',
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              color: AppColors.beige,
+                              fontWeight: FontWeight.w800,
+                            ),
+                      ),
+                    ),
+                    IconButton(
+                      tooltip: 'Dismiss introduction',
+                      onPressed: widget.onDismiss,
+                      visualDensity: VisualDensity.compact,
+                      icon: const Icon(Icons.close, color: AppColors.beige),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  'Choose a daily or weekly challenge, take an outdoor photo that clearly matches it, and earn points when it is verified. Start with one small discovery.',
+                  style: TextStyle(color: AppColors.beige, height: 1.45),
+                ),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: widget.onDismiss,
+                    child: const Text('Let’s explore'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+}
 
 class _ChallengeFilterButton extends StatelessWidget {
   const _ChallengeFilterButton({
@@ -362,15 +476,7 @@ class _ChallengeCard extends StatelessWidget {
               const SizedBox(height: 6),
               Text(challenge.description),
               const SizedBox(height: 14),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: AppColors.beige,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text('How to complete it: ${challenge.visualCriterion}'),
-              ),
+
               const SizedBox(height: 14),
               Row(
                 children: [

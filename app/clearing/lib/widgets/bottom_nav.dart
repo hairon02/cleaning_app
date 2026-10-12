@@ -15,24 +15,14 @@ class BottomNav extends StatelessWidget {
         animationDuration: const Duration(milliseconds: 1000),
         destinations: const [
           NavigationDestination(
-            icon: _NavIcon(Icons.camera_alt_outlined),
-            selectedIcon: _NavIcon(Icons.camera_alt, selected: true),
-            label: 'Camera',
-          ),
-          NavigationDestination(
-            icon: _NavIcon(Icons.map_outlined),
-            selectedIcon: _NavIcon(Icons.map, selected: true),
-            label: 'Map',
-          ),
-          NavigationDestination(
             icon: _NavIcon(Icons.flag_outlined),
             selectedIcon: _NavIcon(Icons.flag, selected: true),
             label: 'Challenges',
           ),
           NavigationDestination(
-            icon: _NavIcon(Icons.leaderboard_outlined),
-            selectedIcon: _NavIcon(Icons.leaderboard, selected: true),
-            label: 'Ranking',
+            icon: _NavIcon(Icons.map_outlined),
+            selectedIcon: _NavIcon(Icons.map, selected: true),
+            label: 'Map',
           ),
           NavigationDestination(
             icon: _NavIcon(Icons.menu_book_outlined),

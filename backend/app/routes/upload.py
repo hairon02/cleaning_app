@@ -16,7 +16,7 @@ from app.config import POINTS_NEW_CELL, POINTS_PHOTO_VERIFIED, UPLOAD_DIR
 from app.db import get_db
 from app.pipeline.challenge_validator import (
     build_challenge_criteria,
-    get_challenges_to_validate,
+    get_challenge_to_validate,
     validate_challenges,
 )
 from app.pipeline.phash import compute_phash, find_duplicate
@@ -88,6 +88,10 @@ async def upload_photo(
     lon: Annotated[float, Form(ge=-180, le=180, description="Longitude at capture time")],
     taken_at: Annotated[datetime, Form(description="Capture timestamp in ISO 8601")],
     user_id: Annotated[str, Form(description="Anonymous device user identifier")],
+    challenge_id: Annotated[
+        Optional[str],
+        Form(description="Selected active challenge ID, if the photo is for a challenge"),
+    ] = None,
     conn: sqlite3.Connection = Depends(get_db),
 ) -> PhotoUploadResponse:
     """Receive a photo, run pHash deduplication and Gemma verification.
@@ -139,7 +143,7 @@ async def upload_photo(
     challenges_completed: list[str] = []
 
     try:
-        pending_challenges = get_challenges_to_validate(user_id, conn)
+        pending_challenges = get_challenge_to_validate(user_id, challenge_id, conn)
     except sqlite3.Error as exc:
         logger.warning("Could not load active challenges for photo %s: %s", photo_id, exc)
         pending_challenges = []
